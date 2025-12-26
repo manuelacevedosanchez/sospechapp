@@ -7,15 +7,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.masmultimedia.sospechapp.ui.components.PrimaryButton
+import com.masmultimedia.sospechapp.ui.components.SecondaryButton
+import com.masmultimedia.sospechapp.ui.components.SospechCard
+import com.masmultimedia.sospechapp.ui.components.SospechScaffold
 
 @Composable
 fun MainMenuScreen(
@@ -23,7 +24,7 @@ fun MainMenuScreen(
     onHowToPlayClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Scaffold { innerPadding ->
+    SospechScaffold { innerPadding ->
         Column(
             modifier = modifier
                 .fillMaxSize()
@@ -34,26 +35,38 @@ fun MainMenuScreen(
         ) {
             Text(
                 text = "SospechApp",
-                style = MaterialTheme.typography.headlineLarge
+                style = MaterialTheme.typography.headlineLarge,
+                color = MaterialTheme.colorScheme.primary
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(18.dp))
 
-            Button(
+            SospechCard(
+                title = "Modo fiesta",
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "Pasa el móvil, memoriza tu rol... y que empiece el teatro.",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(22.dp))
+
+            PrimaryButton(
+                text = "Nueva partida",
                 onClick = onNewGameClick,
                 modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(text = "Nueva partida")
-            }
+            )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            OutlinedButton(
+            SecondaryButton(
+                text = "Cómo se juega",
                 onClick = onHowToPlayClick,
                 modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(text = "Cómo se juega")
-            }
+            )
         }
     }
 }

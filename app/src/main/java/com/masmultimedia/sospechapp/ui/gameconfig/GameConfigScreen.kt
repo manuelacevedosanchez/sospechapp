@@ -8,13 +8,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -24,7 +22,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.masmultimedia.sospechapp.ui.components.PrimaryButton
+import com.masmultimedia.sospechapp.ui.components.SecondaryButton
+import com.masmultimedia.sospechapp.ui.components.SospechCard
+import com.masmultimedia.sospechapp.ui.components.SospechScaffold
+import com.masmultimedia.sospechapp.ui.components.SospechTopBar
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GameConfigScreen(
     onBackClick: () -> Unit,
@@ -35,109 +39,105 @@ fun GameConfigScreen(
     var impostors by remember { mutableIntStateOf(1) }
     var wordInput by remember { mutableStateOf("") }
 
-    // Basic rules: minimum 3 players, at least 1 impostor.
     val safeTotalPlayers = totalPlayers.coerceAtLeast(3)
     val safeImpostors = impostors.coerceIn(1, safeTotalPlayers - 1)
 
     val isStartEnabled =
-        safeTotalPlayers >= 3 &&
-                safeImpostors in 1..(safeTotalPlayers - 1)
+        safeTotalPlayers >= 3 && safeImpostors in 1..(safeTotalPlayers - 1)
 
-    Scaffold { innerPadding ->
+    SospechScaffold(
+        topBar = {
+            SospechTopBar(
+                title = "Nueva partida",
+                subtitle = "Configura la ronda",
+                onBackClick = onBackClick
+            )
+        }
+    ) { innerPadding ->
         Column(
             modifier = modifier
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(
-                text = "Nueva partida",
-                style = MaterialTheme.typography.headlineMedium
-            )
-
-            // Player count selector
-            Column {
-                Text(text = "Número de jugadores")
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    OutlinedButton(
-                        onClick = { if (totalPlayers > 3) totalPlayers-- },
-                    ) {
-                        Text(text = "-")
-                    }
-
-                    Text(
-                        text = totalPlayers.toString(),
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-
-                    OutlinedButton(
-                        onClick = { totalPlayers++ },
-                    ) {
-                        Text(text = "+")
-                    }
-                }
+            SospechCard(title = "Jugadores") {
+                StepperRow(
+                    value = totalPlayers,
+                    onMinus = { if (totalPlayers > 3) totalPlayers-- },
+                    onPlus = { totalPlayers++ }
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = "Mínimo 3",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                )
             }
 
-            // Impostor count selector
-            Column {
-                Text(text = "Número de impostores")
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    OutlinedButton(
-                        onClick = { if (impostors > 1) impostors-- },
-                    ) {
-                        Text(text = "-")
-                    }
-
-                    Text(
-                        text = impostors.toString(),
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-
-                    OutlinedButton(
-                        onClick = { if (impostors < safeTotalPlayers - 1) impostors++ },
-                    ) {
-                        Text(text = "+")
-                    }
-                }
+            SospechCard(title = "Impostores") {
+                StepperRow(
+                    value = impostors,
+                    onMinus = { if (impostors > 1) impostors-- },
+                    onPlus = { if (impostors < safeTotalPlayers - 1) impostors++ }
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = "Entre 1 y ${safeTotalPlayers - 1}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                )
             }
 
-            OutlinedTextField(
-                value = wordInput,
-                onValueChange = { wordInput = it },
-                label = { Text("Palabra (vacío = aleatoria)") },
-                modifier = Modifier.fillMaxWidth()
-            )
+            SospechCard(title = "Palabra") {
+                OutlinedTextField(
+                    value = wordInput,
+                    onValueChange = { wordInput = it },
+                    label = { Text("Vacío = aleatoria") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
             Spacer(modifier = Modifier.weight(1f))
 
-            Button(
+            PrimaryButton(
+                text = "Empezar",
                 onClick = {
                     val cleanedWord: String? = wordInput.trim().ifBlank { null }
                     onStartGame(safeTotalPlayers, safeImpostors, cleanedWord)
                 },
                 enabled = isStartEnabled,
                 modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(text = "Empezar")
-            }
+            )
 
-            TextButton(
+            Spacer(modifier = Modifier.height(10.dp))
+
+            SecondaryButton(
+                text = "Volver",
                 onClick = onBackClick,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            ) {
-                Text(text = "Volver al menú")
-            }
+                modifier = Modifier.fillMaxWidth()
+            )
         }
+    }
+}
+
+@Composable
+private fun StepperRow(
+    value: Int,
+    onMinus: () -> Unit,
+    onPlus: () -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        OutlinedButton(onClick = onMinus) { Text("-") }
+
+        Text(
+            text = value.toString(),
+            style = MaterialTheme.typography.headlineSmall
+        )
+
+        OutlinedButton(onClick = onPlus) { Text("+") }
     }
 }
