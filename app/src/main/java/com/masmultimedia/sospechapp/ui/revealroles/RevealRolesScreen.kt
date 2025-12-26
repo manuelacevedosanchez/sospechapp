@@ -1,17 +1,27 @@
 package com.masmultimedia.sospechapp.ui.revealroles
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
 import com.masmultimedia.sospechapp.game.GameState
 import com.masmultimedia.sospechapp.game.PlayerRole
@@ -20,7 +30,12 @@ import com.masmultimedia.sospechapp.ui.components.SospechCard
 import com.masmultimedia.sospechapp.ui.components.SospechScaffold
 import com.masmultimedia.sospechapp.ui.components.SospechTopBar
 
-@OptIn(ExperimentalMaterial3Api::class)
+private data class RevealKey(
+    val isRoleVisible: Boolean,
+    val playerIndex: Int
+)
+
+@OptIn(ExperimentalAnimationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun RevealRolesScreen(
     state: GameState,
@@ -28,6 +43,8 @@ fun RevealRolesScreen(
     onHideAndNext: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val haptic = LocalHapticFeedback.current
+
     val playerNumber = (state.currentPlayerIndex + 1).coerceAtLeast(1)
     val totalPlayers = state.totalPlayers.coerceAtLeast(1)
 
@@ -57,45 +74,66 @@ fun RevealRolesScreen(
                 return@SospechScaffold
             }
 
-            if (!state.isRoleVisible) {
-                SospechCard(title = "Turno del jugador $playerNumber") {
-                    Text(
-                        text = "Pasa el móvil a esa persona y pulsa para ver su rol.",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f)
+            val target = RevealKey(
+                isRoleVisible = state.isRoleVisible,
+                playerIndex = state.currentPlayerIndex
+            )
+
+            AnimatedContent(
+                targetState = target,
+                transitionSpec = {
+                    (fadeIn(tween(180)) + scaleIn(initialScale = 0.96f, animationSpec = tween(180))) togetherWith
+                            (fadeOut(tween(140)) + scaleOut(targetScale = 0.98f, animationSpec = tween(140)))
+                },
+                label = "reveal_role_transition"
+            ) { key ->
+                val playerNumber = key.playerIndex + 1
+
+                if (!key.isRoleVisible) {
+                    SospechCard(title = "Turno del jugador $playerNumber") {
+                        Text(
+                            text = "Pasa el móvil a esa persona y pulsa para ver su rol.",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f)
+                        )
+
+                        Spacer(modifier = Modifier.height(14.dp))
+
+                        Text(
+                            text = "Consejo: que nadie mire la pantalla 👀",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    PrimaryButton(
+                        text = "Ver rol",
+                        onClick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            onRevealRole()
+                        },
+                        modifier = Modifier.fillMaxWidth()
                     )
+                } else {
+                    val role = state.roles.getOrNull(key.playerIndex) ?: PlayerRole.UNKNOWN
 
-                    Spacer(modifier = Modifier.height(14.dp))
+                    RoleCard(role = role, word = state.currentWord)
 
-                    Text(
-                        text = "Consejo: que nadie mire la pantalla 👀",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    PrimaryButton(
+                        text = "Ocultar y pasar el móvil",
+                        onClick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            onHideAndNext()
+                        },
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                PrimaryButton(
-                    text = "Ver rol",
-                    onClick = onRevealRole,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            } else {
-                val role = state.roles.getOrNull(state.currentPlayerIndex) ?: PlayerRole.UNKNOWN
-
-                RoleCard(
-                    role = role,
-                    word = state.currentWord
-                )
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                PrimaryButton(
-                    text = "Ocultar y pasar el móvil",
-                    onClick = onHideAndNext,
-                    modifier = Modifier.fillMaxWidth()
-                )
             }
         }
     }
