@@ -7,4 +7,6 @@ sealed class SospechAppDestination(val route: String) {
     data object HowToPlay : SospechAppDestination("how_to_play")
     data object RevealRoles : SospechAppDestination("reveal_roles")
     data object ReadyToPlay : SospechAppDestination("ready_to_play")
+    data object Settings : SospechAppDestination("settings")
+    data object Misc : SospechAppDestination("misc")
 }

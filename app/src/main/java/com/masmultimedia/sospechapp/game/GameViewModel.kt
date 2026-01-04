@@ -34,6 +34,18 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 action.wordInput
             )
 
+            is GameAction.SetHapticsEnabled -> {
+                _uiState.update { it.copy(settings = it.settings.copy(hapticsEnabled = action.enabled)) }
+            }
+
+            is GameAction.SetAnimationsEnabled -> {
+                _uiState.update { it.copy(settings = it.settings.copy(animationsEnabled = action.enabled)) }
+            }
+
+            is GameAction.SetKeepScreenOn -> {
+                _uiState.update { it.copy(settings = it.settings.copy(keepScreenOn = action.enabled)) }
+            }
+
             GameAction.RevealRole -> revealRole()
             GameAction.HideRoleAndNext -> hideRoleAndNext()
             GameAction.ResetGame -> resetGame()
