@@ -7,11 +7,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -22,6 +25,7 @@ import com.masmultimedia.sospechapp.game.GameEffect
 import com.masmultimedia.sospechapp.game.GameViewModel
 import com.masmultimedia.sospechapp.navigation.SospechAppDestination
 import com.masmultimedia.sospechapp.ui.HowToPlayScreen
+import com.masmultimedia.sospechapp.ui.components.LocalSospechSnackbarHostState
 import com.masmultimedia.sospechapp.ui.gameconfig.GameConfigScreen
 import com.masmultimedia.sospechapp.ui.menu.MainMenuScreen
 import com.masmultimedia.sospechapp.ui.ready.ReadyToPlayScreen
@@ -65,6 +69,7 @@ fun SospechNavHost(
     gameViewModel: GameViewModel
 ) {
     val state by gameViewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     // Collect one-shot effects for navigation
     LaunchedEffect(Unit) {
@@ -79,78 +84,82 @@ fun SospechNavHost(
                 }
 
                 is GameEffect.ShowError -> {
-                    // TODO: show snackbar / toast
+                    snackbarHostState.showSnackbar(effect.message)
                 }
             }
         }
     }
 
-    NavHost(
-        navController = navController,
-        startDestination = SospechAppDestination.Splash.route
+    CompositionLocalProvider(
+        LocalSospechSnackbarHostState provides snackbarHostState
     ) {
-        composable(SospechAppDestination.Splash.route) {
-            SplashScreen(
-                onTimeout = {
-                    navController.navigate(SospechAppDestination.MainMenu.route) {
-                        popUpTo(SospechAppDestination.Splash.route) {
-                            inclusive = true
+        NavHost(
+            navController = navController,
+            startDestination = SospechAppDestination.Splash.route
+        ) {
+            composable(SospechAppDestination.Splash.route) {
+                SplashScreen(
+                    onTimeout = {
+                        navController.navigate(SospechAppDestination.MainMenu.route) {
+                            popUpTo(SospechAppDestination.Splash.route) {
+                                inclusive = true
+                            }
                         }
                     }
-                }
-            )
-        }
+                )
+            }
 
-        composable(SospechAppDestination.MainMenu.route) {
-            MainMenuScreen(
-                onNewGameClick = {
-                    navController.navigate(SospechAppDestination.GameConfig.route)
-                },
-                onHowToPlayClick = {
-                    navController.navigate(SospechAppDestination.HowToPlay.route)
-                }
-            )
-        }
+            composable(SospechAppDestination.MainMenu.route) {
+                MainMenuScreen(
+                    onNewGameClick = {
+                        navController.navigate(SospechAppDestination.GameConfig.route)
+                    },
+                    onHowToPlayClick = {
+                        navController.navigate(SospechAppDestination.HowToPlay.route)
+                    }
+                )
+            }
 
-        composable(SospechAppDestination.GameConfig.route) {
-            GameConfigScreen(
-                onBackClick = { navController.popBackStack() },
-                onStartGame = { totalPlayers, impostors, wordInput ->
-                    gameViewModel.onAction(
-                        GameAction.StartGame(
-                            totalPlayers = totalPlayers,
-                            impostors = impostors,
-                            wordInput = wordInput
+            composable(SospechAppDestination.GameConfig.route) {
+                GameConfigScreen(
+                    onBackClick = { navController.popBackStack() },
+                    onStartGame = { totalPlayers, impostors, wordInput ->
+                        gameViewModel.onAction(
+                            GameAction.StartGame(
+                                totalPlayers = totalPlayers,
+                                impostors = impostors,
+                                wordInput = wordInput
+                            )
                         )
-                    )
-                }
-            )
-        }
+                    }
+                )
+            }
 
-        composable(SospechAppDestination.HowToPlay.route) {
-            HowToPlayScreen(
-                onBackClick = { navController.popBackStack() }
-            )
-        }
+            composable(SospechAppDestination.HowToPlay.route) {
+                HowToPlayScreen(
+                    onBackClick = { navController.popBackStack() }
+                )
+            }
 
-        composable(SospechAppDestination.RevealRoles.route) {
-            RevealRolesScreen(
-                state = state,
-                onRevealRole = { gameViewModel.onAction(GameAction.RevealRole) },
-                onHideAndNext = { gameViewModel.onAction(GameAction.HideRoleAndNext) }
-            )
-        }
+            composable(SospechAppDestination.RevealRoles.route) {
+                RevealRolesScreen(
+                    state = state,
+                    onRevealRole = { gameViewModel.onAction(GameAction.RevealRole) },
+                    onHideAndNext = { gameViewModel.onAction(GameAction.HideRoleAndNext) }
+                )
+            }
 
-        composable(SospechAppDestination.ReadyToPlay.route) {
-            ReadyToPlayScreen(
-                onBackToMenu = {
-                    gameViewModel.onAction(GameAction.ResetGame)
-                    navController.popBackStack(
-                        SospechAppDestination.MainMenu.route,
-                        inclusive = false
-                    )
-                }
-            )
+            composable(SospechAppDestination.ReadyToPlay.route) {
+                ReadyToPlayScreen(
+                    onBackToMenu = {
+                        gameViewModel.onAction(GameAction.ResetGame)
+                        navController.popBackStack(
+                            SospechAppDestination.MainMenu.route,
+                            inclusive = false
+                        )
+                    }
+                )
+            }
         }
     }
 }

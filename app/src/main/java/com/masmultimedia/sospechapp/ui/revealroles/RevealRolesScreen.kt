@@ -1,5 +1,13 @@
 package com.masmultimedia.sospechapp.ui.revealroles
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -7,17 +15,27 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
 import com.masmultimedia.sospechapp.game.GameState
 import com.masmultimedia.sospechapp.game.PlayerRole
+import com.masmultimedia.sospechapp.ui.components.PrimaryButton
+import com.masmultimedia.sospechapp.ui.components.SospechCard
+import com.masmultimedia.sospechapp.ui.components.SospechScaffold
+import com.masmultimedia.sospechapp.ui.components.SospechTopBar
 
+private data class RevealKey(
+    val isRoleVisible: Boolean,
+    val playerIndex: Int
+)
+
+@OptIn(ExperimentalAnimationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun RevealRolesScreen(
     state: GameState,
@@ -25,94 +43,154 @@ fun RevealRolesScreen(
     onHideAndNext: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Scaffold { innerPadding ->
-        if (!state.isGameStarted || state.roles.isEmpty()) {
-            Column(
-                modifier = modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(24.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(text = "No hay partida activa.")
-            }
-        } else {
-            val playerNumber = state.currentPlayerIndex + 1
-            val totalPlayers = state.totalPlayers
+    val haptic = LocalHapticFeedback.current
 
-            Column(
-                modifier = modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "Jugador $playerNumber de $totalPlayers",
-                    style = MaterialTheme.typography.headlineSmall
-                )
+    val playerNumber = (state.currentPlayerIndex + 1).coerceAtLeast(1)
+    val totalPlayers = state.totalPlayers.coerceAtLeast(1)
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                if (!state.isRoleVisible) {
+    SospechScaffold(
+        topBar = {
+            SospechTopBar(
+                title = "Revelar roles",
+                subtitle = "Jugador $playerNumber de $totalPlayers"
+            )
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            if (!state.isGameStarted || state.roles.isEmpty()) {
+                SospechCard(title = "Sin partida") {
                     Text(
-                        text = "Pasa el móvil al jugador $playerNumber y pulsa para ver su rol.",
-                        style = MaterialTheme.typography.bodyLarge
+                        text = "No hay partida activa. Vuelve al menú y crea una nueva.",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f)
                     )
+                }
+                return@SospechScaffold
+            }
 
+            val target = RevealKey(
+                isRoleVisible = state.isRoleVisible,
+                playerIndex = state.currentPlayerIndex
+            )
+
+            AnimatedContent(
+                targetState = target,
+                transitionSpec = {
+                    (fadeIn(tween(180)) + scaleIn(initialScale = 0.96f, animationSpec = tween(180))) togetherWith
+                            (fadeOut(tween(140)) + scaleOut(targetScale = 0.98f, animationSpec = tween(140)))
+                },
+                label = "reveal_role_transition"
+            ) { key ->
+                val playerNumber = key.playerIndex + 1
+
+                if (!key.isRoleVisible) {
+                    SospechCard(title = "Turno del jugador $playerNumber") {
+                        Text(
+                            text = "Pasa el móvil a esa persona y pulsa para ver su rol.",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f)
+                        )
+
+                        Spacer(modifier = Modifier.height(14.dp))
+
+                        Text(
+                            text = "Consejo: que nadie mire la pantalla 👀",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
                     Spacer(modifier = Modifier.weight(1f))
 
-                    Button(
-                        onClick = onRevealRole,
+                    PrimaryButton(
+                        text = "Ver rol",
+                        onClick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            onRevealRole()
+                        },
                         modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(text = "Ver rol")
-                    }
+                    )
                 } else {
-                    val role = state.roles.getOrNull(state.currentPlayerIndex)
+                    val role = state.roles.getOrNull(key.playerIndex) ?: PlayerRole.UNKNOWN
 
-                    when (role) {
-                        PlayerRole.IMPOSTOR -> {
-                            Text(
-                                text = "Eres el impostor.\n\nNo conoces la palabra.",
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                        }
+                    RoleCard(role = role, word = state.currentWord)
 
-                        PlayerRole.CITIZEN -> {
-                            Text(
-                                text = "Eres ciudadano.\n\nLa palabra es:",
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-
-                            Text(
-                                text = state.currentWord.orEmpty(),
-                                style = MaterialTheme.typography.headlineMedium
-                            )
-                        }
-
-                        null -> {
-                            Text(
-                                text = "No se ha podido cargar tu rol.",
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                        }
-
-                        PlayerRole.UNKNOWN -> TODO()
-                    }
-
+                    Spacer(modifier = Modifier.height(16.dp))
                     Spacer(modifier = Modifier.weight(1f))
 
-                    Button(
-                        onClick = onHideAndNext,
+                    PrimaryButton(
+                        text = "Ocultar y pasar el móvil",
+                        onClick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            onHideAndNext()
+                        },
                         modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(text = "Ocultar y pasar el móvil")
-                    }
+                    )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun RoleCard(
+    role: PlayerRole,
+    word: String?
+) {
+    val isImpostor = role == PlayerRole.IMPOSTOR
+    val title = when (role) {
+        PlayerRole.IMPOSTOR -> "Eres el IMPOSTOR"
+        PlayerRole.CITIZEN -> "Eres CIUDADANO"
+        PlayerRole.UNKNOWN -> "Rol no disponible"
+    }
+
+    SospechCard(title = title) {
+        when (role) {
+            PlayerRole.IMPOSTOR -> {
+                Text(
+                    text = "No conoces la palabra.\nEscucha, improvisa… y no te delates.",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+
+            PlayerRole.CITIZEN -> {
+                Text(
+                    text = "La palabra es:",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f)
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text = word.orEmpty().ifBlank { "—" },
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+
+            PlayerRole.UNKNOWN -> {
+                Text(
+                    text = "No se ha podido determinar tu rol. Vuelve a crear la partida.",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f)
+                )
+            }
+        }
+
+        if (isImpostor) {
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = "Tip: haz preguntas, copia estilos… y evita detalles concretos.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+            )
         }
     }
 }

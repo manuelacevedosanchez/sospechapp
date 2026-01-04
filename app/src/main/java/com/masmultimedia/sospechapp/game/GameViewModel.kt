@@ -139,8 +139,10 @@ class GameViewModel : ViewModel() {
     }
 
     private fun sendError(message: String) {
-        _uiState.update {
-            it.copy(errorMessage = message)
+        _uiState.update { it.copy(errorMessage = message) }
+
+        viewModelScope.launch {
+            _effect.emit(GameEffect.ShowError(message))
         }
     }
 
