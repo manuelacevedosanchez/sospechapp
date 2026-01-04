@@ -3,6 +3,7 @@ package com.masmultimedia.sospechapp.ui.revealroles
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,11 +24,6 @@ import com.masmultimedia.sospechapp.ui.components.SospechCard
 import com.masmultimedia.sospechapp.ui.components.SospechScaffold
 import com.masmultimedia.sospechapp.ui.components.SospechTopBar
 
-private data class RevealKey(
-    val isRoleVisible: Boolean,
-    val playerIndex: Int
-)
-
 @OptIn(ExperimentalAnimationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun RevealRolesScreen(
@@ -36,7 +32,6 @@ fun RevealRolesScreen(
     onHideAndNext: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val haptic = LocalHapticFeedback.current
 
     val playerNumber = (state.currentPlayerIndex + 1).coerceAtLeast(1)
     val totalPlayers = state.totalPlayers.coerceAtLeast(1)
@@ -67,73 +62,76 @@ fun RevealRolesScreen(
                 return@SospechScaffold
             }
 
-            val target = RevealKey(
+            RevealRolesContent(
                 isRoleVisible = state.isRoleVisible,
-                playerIndex = state.currentPlayerIndex
+                playerIndex = state.currentPlayerIndex,
+                state = state,
+                onRevealRole = onRevealRole,
+                onHideAndNext = onHideAndNext
+            )
+        }
+    }
+}
+
+@Composable
+private fun ColumnScope.RevealRolesContent(
+    isRoleVisible: Boolean,
+    playerIndex: Int,
+    state: GameState,
+    onRevealRole: () -> Unit,
+    onHideAndNext: () -> Unit
+) {
+    val haptic = LocalHapticFeedback.current
+    val playerNumber = playerIndex + 1
+
+    if (!isRoleVisible) {
+        SospechCard(title = "Turno del jugador $playerNumber") {
+            Text(
+                text = "Pasa el móvil a esa persona y pulsa para ver su rol.",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f)
             )
 
-            @Composable
-            fun RevealRolesContent(
-                key: RevealKey,
-                state: GameState,
-                onRevealRole: () -> Unit,
-                onHideAndNext: () -> Unit
-            ) {
-                val haptic = LocalHapticFeedback.current
+            Spacer(modifier = Modifier.height(14.dp))
 
-                val playerNumber = key.playerIndex + 1
-
-                if (!key.isRoleVisible) {
-                    SospechCard(title = "Turno del jugador $playerNumber") {
-                        Text(
-                            text = "Pasa el móvil a esa persona y pulsa para ver su rol.",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f)
-                        )
-
-                        Spacer(modifier = Modifier.height(14.dp))
-
-                        Text(
-                            text = "Consejo: que nadie mire la pantalla 👀",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Spacer(modifier = Modifier.weight(1f))
-
-                    PrimaryButton(
-                        text = "Ver rol",
-                        onClick = {
-                            if (state.settings.hapticsEnabled) {
-                                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                            }
-                            onRevealRole()
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                } else {
-                    val role = state.roles.getOrNull(key.playerIndex) ?: PlayerRole.UNKNOWN
-
-                    RoleCard(role = role, word = state.currentWord)
-
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Spacer(modifier = Modifier.weight(1f))
-
-                    PrimaryButton(
-                        text = "Ocultar y pasar el móvil",
-                        onClick = {
-                            if (state.settings.hapticsEnabled) {
-                                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                            }
-                            onHideAndNext()
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-            }
+            Text(
+                text = "Consejo: que nadie mire la pantalla 👀",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+            )
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.weight(1f))   // ✅ ahora sí
+
+        PrimaryButton(
+            text = "Ver rol",
+            onClick = {
+                if (state.settings.hapticsEnabled) {
+                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                }
+                onRevealRole()
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
+    } else {
+        val role = state.roles.getOrNull(playerIndex) ?: PlayerRole.UNKNOWN
+
+        RoleCard(role = role, word = state.currentWord)
+
+        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.weight(1f))   // ✅ ahora sí
+
+        PrimaryButton(
+            text = "Ocultar y pasar el móvil",
+            onClick = {
+                if (state.settings.hapticsEnabled) {
+                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                }
+                onHideAndNext()
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
 
