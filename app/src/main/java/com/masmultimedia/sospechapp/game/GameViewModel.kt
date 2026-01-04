@@ -1,7 +1,10 @@
 package com.masmultimedia.sospechapp.game
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.masmultimedia.sospechapp.words.data.AssetsWordsRepository
+import com.masmultimedia.sospechapp.words.domain.WordsRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -11,7 +14,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class GameViewModel : ViewModel() {
+class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _uiState = MutableStateFlow(GameState())
     val uiState: StateFlow<GameState> = _uiState.asStateFlow()
@@ -19,19 +22,9 @@ class GameViewModel : ViewModel() {
     private val _effect = MutableSharedFlow<GameEffect>()
     val effect: SharedFlow<GameEffect> = _effect.asSharedFlow()
 
-    // Temporary random words list. Later this will come from data layer
-    private val randomWords = listOf(
-        "playa",
-        "montaña",
-        "pizza",
-        "castillo",
-        "robot",
-        "volcán",
-        "guitarra",
-        "zombi",
-        "biblioteca",
-        "cohete"
-    )
+    // Repo local (assets) to run now
+    private val wordsRepository: WordsRepository =
+        AssetsWordsRepository(context = application.applicationContext)
 
     fun onAction(action: GameAction) {
         when (action) {
@@ -53,26 +46,32 @@ class GameViewModel : ViewModel() {
             return
         }
 
-        val finalWord = wordInput?.takeIf { it.isNotBlank() } ?: getRandomWord()
-        val generatedRoles = generateRoles(totalPlayers, impostors)
-
-        _uiState.update {
-            it.copy(
-                totalPlayers = totalPlayers,
-                impostors = impostors,
-                wordInput = wordInput.orEmpty(),
-                currentWord = finalWord,
-                roles = generatedRoles,
-                currentPlayerIndex = 0,
-                isRoleVisible = false,
-                isGameStarted = true,
-                isReadyToPlay = false,
-                isLoading = false,
-                errorMessage = null
-            )
-        }
-
         viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+
+            // Try to sync words before starting the game, if don't have red or api = null will use local data
+            // Not using by now, only assets
+            wordsRepository.syncIfNeeded()
+
+            val finalWord = wordInput?.takeIf { it.isNotBlank() } ?: wordsRepository.getRandomWord()
+            val generatedRoles = generateRoles(totalPlayers, impostors)
+
+            _uiState.update {
+                it.copy(
+                    totalPlayers = totalPlayers,
+                    impostors = impostors,
+                    wordInput = wordInput.orEmpty(),
+                    currentWord = finalWord,
+                    roles = generatedRoles,
+                    currentPlayerIndex = 0,
+                    isRoleVisible = false,
+                    isGameStarted = true,
+                    isReadyToPlay = false,
+                    isLoading = false,
+                    errorMessage = null
+                )
+            }
+
             _effect.emit(GameEffect.NavigateToRevealRoles)
         }
     }
@@ -87,10 +86,6 @@ class GameViewModel : ViewModel() {
         }
         roles.shuffle()
         return roles
-    }
-
-    private fun getRandomWord(): String {
-        return randomWords.random()
     }
 
     private fun revealRole() {
