@@ -1,13 +1,6 @@
 package com.masmultimedia.sospechapp.ui.revealroles
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -79,14 +72,15 @@ fun RevealRolesScreen(
                 playerIndex = state.currentPlayerIndex
             )
 
-            AnimatedContent(
-                targetState = target,
-                transitionSpec = {
-                    (fadeIn(tween(180)) + scaleIn(initialScale = 0.96f, animationSpec = tween(180))) togetherWith
-                            (fadeOut(tween(140)) + scaleOut(targetScale = 0.98f, animationSpec = tween(140)))
-                },
-                label = "reveal_role_transition"
-            ) { key ->
+            @Composable
+            fun RevealRolesContent(
+                key: RevealKey,
+                state: GameState,
+                onRevealRole: () -> Unit,
+                onHideAndNext: () -> Unit
+            ) {
+                val haptic = LocalHapticFeedback.current
+
                 val playerNumber = key.playerIndex + 1
 
                 if (!key.isRoleVisible) {
@@ -112,7 +106,9 @@ fun RevealRolesScreen(
                     PrimaryButton(
                         text = "Ver rol",
                         onClick = {
-                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            if (state.settings.hapticsEnabled) {
+                                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            }
                             onRevealRole()
                         },
                         modifier = Modifier.fillMaxWidth()
@@ -128,7 +124,9 @@ fun RevealRolesScreen(
                     PrimaryButton(
                         text = "Ocultar y pasar el móvil",
                         onClick = {
-                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            if (state.settings.hapticsEnabled) {
+                                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            }
                             onHideAndNext()
                         },
                         modifier = Modifier.fillMaxWidth()

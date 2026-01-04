@@ -12,6 +12,7 @@ data class GameState(
     val isReadyToPlay: Boolean = false,
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
+    val settings: AppSettings = AppSettings(),
 )
 
 enum class PlayerRole {
@@ -31,6 +32,10 @@ sealed interface GameAction {
     data object RevealRole : GameAction
     data object HideRoleAndNext : GameAction
     data object ResetGame : GameAction
+
+    data class SetHapticsEnabled(val enabled: Boolean) : GameAction
+    data class SetAnimationsEnabled(val enabled: Boolean) : GameAction
+    data class SetKeepScreenOn(val enabled: Boolean) : GameAction
 
 }
 
