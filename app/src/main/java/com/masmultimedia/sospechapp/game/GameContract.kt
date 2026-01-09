@@ -1,5 +1,7 @@
 package com.masmultimedia.sospechapp.game
 
+import com.masmultimedia.sospechapp.core.text.UiText
+
 data class GameState(
     val totalPlayers: Int = 0,
     val impostors: Int = 0,
@@ -11,7 +13,8 @@ data class GameState(
     val isGameStarted: Boolean = false,
     val isReadyToPlay: Boolean = false,
     val isLoading: Boolean = false,
-    val errorMessage: String? = null,
+    // val errorMessage: String? = null,
+    val errorMessage: UiText? = null,
     val settings: AppSettings = AppSettings(),
 )
 
@@ -40,7 +43,7 @@ sealed interface GameAction {
 }
 
 sealed interface GameEffect {
-    data class ShowError(val message: String) : GameEffect
+    data class ShowError(val message: UiText) : GameEffect
     data object NavigateToRevealRoles : GameEffect
     data object NavigateToReadyToPlay : GameEffect
 }

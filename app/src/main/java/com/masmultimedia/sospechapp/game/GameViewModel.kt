@@ -3,6 +3,8 @@ package com.masmultimedia.sospechapp.game
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.masmultimedia.sospechapp.R
+import com.masmultimedia.sospechapp.core.text.UiText
 import com.masmultimedia.sospechapp.words.data.AssetsWordsRepository
 import com.masmultimedia.sospechapp.words.domain.WordsRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -54,7 +56,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun startGame(totalPlayers: Int, impostors: Int, wordInput: String?) {
         if (totalPlayers < 3 || impostors < 1 || impostors >= totalPlayers) {
-            sendError("Número de jugadores o impostores inválido")
+            sendError(UiText.TextResource(R.string.error_invalid_players_impostors))
             return
         }
 
@@ -145,7 +147,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun sendError(message: String) {
+    private fun sendError(message: UiText) {
         _uiState.update { it.copy(errorMessage = message) }
 
         viewModelScope.launch {

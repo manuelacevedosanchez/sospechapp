@@ -18,11 +18,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.masmultimedia.sospechapp.core.text.AndroidStringProvider
+import com.masmultimedia.sospechapp.core.text.LocalStringProvider
+import com.masmultimedia.sospechapp.core.text.asString
 import com.masmultimedia.sospechapp.game.GameAction
 import com.masmultimedia.sospechapp.game.GameEffect
 import com.masmultimedia.sospechapp.game.GameViewModel
@@ -57,15 +61,23 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun SospechApp(gameViewModel: GameViewModel) {
     val navController = rememberNavController()
+    val context = LocalContext.current
+    val stringProvider = remember {
+        AndroidStringProvider(context.applicationContext)
+    }
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
+    CompositionLocalProvider(
+        LocalStringProvider provides stringProvider
     ) {
-        SospechNavHost(
-            navController = navController,
-            gameViewModel = gameViewModel
-        )
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            SospechNavHost(
+                navController = navController,
+                gameViewModel = gameViewModel
+            )
+        }
     }
 }
 
@@ -74,8 +86,9 @@ fun SospechNavHost(
     navController: NavHostController,
     gameViewModel: GameViewModel
 ) {
-    val state by gameViewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+    val state by gameViewModel.uiState.collectAsState()
+    val stringProvider = LocalStringProvider.current
     val view = LocalView.current
     DisposableEffect(state.settings.keepScreenOn) {
         view.keepScreenOn = state.settings.keepScreenOn
@@ -95,7 +108,7 @@ fun SospechNavHost(
                 }
 
                 is GameEffect.ShowError -> {
-                    snackbarHostState.showSnackbar(effect.message)
+                    snackbarHostState.showSnackbar(effect.message.asString(stringProvider))
                 }
             }
         }
@@ -109,6 +122,7 @@ fun SospechNavHost(
                 navController = navController,
                 startDestination = SospechAppDestination.Splash.route
             ) {
+
                 composable(SospechAppDestination.Splash.route) {
                     SplashScreen(
                         onTimeout = {
@@ -189,7 +203,7 @@ fun SospechNavHost(
 
             if (state.isLoading) {
                 LoadingOverlay(
-                    text = "Cargando palabra..."
+                    text = stringProvider.getString(R.string.loading_word)
                 )
             }
         }
