@@ -1,5 +1,6 @@
 package com.masmultimedia.sospechapp.ui.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
@@ -30,7 +31,8 @@ fun PrimaryButton(
         shape = MaterialTheme.shapes.large,
         elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary
         )
     ) {
         Row(
@@ -57,11 +59,18 @@ fun SecondaryButton(
     enabled: Boolean = true,
     leadingIcon: ImageVector? = null
 ) {
+    val c = MaterialTheme.colorScheme
+
     OutlinedButton(
         onClick = onClick,
         enabled = enabled,
         modifier = modifier,
-        shape = MaterialTheme.shapes.large
+        shape = MaterialTheme.shapes.large,
+        border = BorderStroke(1.dp, c.outline.copy(alpha = 0.35f)),
+        colors = ButtonDefaults.outlinedButtonColors(
+            containerColor = c.surface.copy(alpha = 0.22f),
+            contentColor = c.onSurface
+        )
     ) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(10.dp),

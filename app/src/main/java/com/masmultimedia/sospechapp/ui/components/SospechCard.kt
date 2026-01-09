@@ -3,7 +3,9 @@ package com.masmultimedia.sospechapp.ui.components
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -24,20 +26,20 @@ fun SospechCard(
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
-        border = BorderStroke(1.dp, c.primary.copy(alpha = 0.18f)),
+        border = BorderStroke(1.dp, c.outline.copy(alpha = 0.28f)),
         colors = CardDefaults.cardColors(
-            containerColor = c.surface.copy(alpha = 0.55f)
+            containerColor = c.surface.copy(alpha = 0.78f)
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 12.dp)
     ) {
         Column(modifier = Modifier.padding(18.dp)) {
             if (!title.isNullOrBlank()) {
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleMedium,
-                    color = c.onSurface
+                    color = c.onSurface.copy(alpha = 0.95f)
                 )
-                androidx.compose.foundation.layout.Spacer(modifier = Modifier.padding(top = 10.dp))
+                Spacer(modifier = Modifier.height(10.dp))
             }
             content()
         }

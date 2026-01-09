@@ -33,13 +33,13 @@ fun SplashScreen(
         onTimeout()
     }
 
-    val scale = androidx.compose.animation.core.rememberInfiniteTransition(label = "pulse")
+    val scale = rememberInfiniteTransition(label = "pulse")
         .animateFloat(
             initialValue = 0.98f,
             targetValue = 1.02f,
-            animationSpec = androidx.compose.animation.core.infiniteRepeatable(
-                animation = androidx.compose.animation.core.tween(900),
-                repeatMode = androidx.compose.animation.core.RepeatMode.Reverse
+            animationSpec = infiniteRepeatable(
+                animation = tween(900),
+                repeatMode = RepeatMode.Reverse
             ),
             label = "scale"
         ).value

@@ -10,11 +10,11 @@ val Purple40 = Color(0xFF6650a4)
 val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
-val BrandPrimary = Color(0xFF8B5CF6)     // morado pro
-val BrandSecondary = Color(0xFF22C55E)   // verde “ok”
-val BrandDanger = Color(0xFFEF4444)      // rojo impostor
-val BrandBg = Color(0xFF0B0B12)          // casi negro
-val BrandSurface = Color(0xFF121224)     // gris azulado oscuro
-val BrandSurface2 = Color(0xFF1A1A33)    // un pelín más claro
+val BrandPrimary = Color(0xFF8B5CF6)     // purple pro
+val BrandSecondary = Color(0xFF22C55E)   // green “ok”
+val BrandDanger = Color(0xFFEF4444)      // red impostor
+val BrandBg = Color(0xFF0B0B12)          // almost black
+val BrandSurface = Color(0xFF121224)     // grey blue dark
+val BrandSurface2 = Color(0xFF1A1A33)    // a little lighter
 val BrandText = Color(0xFFF5F5FF)
 val BrandTextMuted = Color(0xFFB7B7D6)
