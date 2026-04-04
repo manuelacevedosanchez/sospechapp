@@ -4,8 +4,8 @@
     <string name="splash_subtitle">The impostor is among you</string>
     <string name="main_party_mode">Party mode</string>
     <string name="main_party_desc">Pass the phone, memorize your role... let the acting begin.</string>
-    <string name="main_new_game">New game</string>
-    <string name="main_how_to_play">How to play</string>
+    <string name="main_new_game">New Game</string>
+    <string name="main_how_to_play">How to play?</string>
     <string name="main_settings">Settings</string>
     <string name="main_misc">Misc</string>
     <string name="config_new_game">New game</string>
