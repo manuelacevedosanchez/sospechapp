@@ -21,7 +21,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.masmultimedia.sospechapp.R
 import com.masmultimedia.sospechapp.ui.components.PrimaryButton
 import com.masmultimedia.sospechapp.ui.components.SecondaryButton
 import com.masmultimedia.sospechapp.ui.components.SospechCard
@@ -48,8 +50,8 @@ fun GameConfigScreen(
     SospechScaffold(
         topBar = {
             SospechTopBar(
-                title = "Nueva partida",
-                subtitle = "Configura la ronda",
+                title = stringResource(R.string.config_title),
+                subtitle = stringResource(R.string.config_subtitle),
                 onBackClick = onBackClick
             )
         }
@@ -61,7 +63,7 @@ fun GameConfigScreen(
                 .padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            SospechCard(title = "Jugadores") {
+            SospechCard(title = stringResource(R.string.config_players)) {
                 StepperRow(
                     value = totalPlayers,
                     onMinus = { if (totalPlayers > 3) totalPlayers-- },
@@ -69,13 +71,13 @@ fun GameConfigScreen(
                 )
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = "Mínimo 3",
+                    text = stringResource(R.string.config_min_players),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                 )
             }
 
-            SospechCard(title = "Impostores") {
+            SospechCard(title = stringResource(R.string.config_impostors)) {
                 StepperRow(
                     value = impostors,
                     onMinus = { if (impostors > 1) impostors-- },
@@ -83,17 +85,17 @@ fun GameConfigScreen(
                 )
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = "Entre 1 y ${safeTotalPlayers - 1}",
+                    text = stringResource(R.string.config_impostors_range, safeTotalPlayers - 1),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                 )
             }
 
-            SospechCard(title = "Palabra") {
+            SospechCard(title = stringResource(R.string.config_word)) {
                 OutlinedTextField(
                     value = wordInput,
                     onValueChange = { wordInput = it },
-                    label = { Text("Vacío = aleatoria") },
+                    label = { Text(stringResource(R.string.config_word_hint)) },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -101,7 +103,7 @@ fun GameConfigScreen(
             Spacer(modifier = Modifier.weight(1f))
 
             PrimaryButton(
-                text = "Empezar",
+                text = stringResource(R.string.config_start),
                 onClick = {
                     val cleanedWord: String? = wordInput.trim().ifBlank { null }
                     onStartGame(safeTotalPlayers, safeImpostors, cleanedWord)
@@ -113,7 +115,7 @@ fun GameConfigScreen(
             Spacer(modifier = Modifier.height(10.dp))
 
             SecondaryButton(
-                text = "Volver",
+                text = stringResource(R.string.config_back),
                 onClick = onBackClick,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -131,13 +133,13 @@ private fun StepperRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        OutlinedButton(onClick = onMinus) { Text("-") }
+        OutlinedButton(onClick = onMinus) { Text(stringResource(R.string.stepper_minus)) }
 
         Text(
             text = value.toString(),
             style = MaterialTheme.typography.headlineSmall
         )
 
-        OutlinedButton(onClick = onPlus) { Text("+") }
+        OutlinedButton(onClick = onPlus) { Text(stringResource(R.string.stepper_plus)) }
     }
 }

@@ -12,8 +12,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.masmultimedia.sospechapp.BuildConfig
+import com.masmultimedia.sospechapp.R
 import com.masmultimedia.sospechapp.ui.components.SospechCard
 import com.masmultimedia.sospechapp.ui.components.SospechScaffold
 import com.masmultimedia.sospechapp.ui.components.SospechTopBar
@@ -30,8 +32,8 @@ fun MiscScreen(
     SospechScaffold(
         topBar = {
             SospechTopBar(
-                title = "Miscelánea",
-                subtitle = "Info y enlaces",
+                title = stringResource(R.string.misc_title),
+                subtitle = stringResource(R.string.misc_subtitle),
                 onBackClick = onBackClick
             )
         }
@@ -43,26 +45,26 @@ fun MiscScreen(
                 .padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            SospechCard(title = "Sobre la app") {
+            SospechCard(title = stringResource(R.string.misc_about)) {
                 Text(
-                    text = "SospechApp · v${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
+                    text = stringResource(R.string.misc_version, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE),
                     style = MaterialTheme.typography.bodyLarge
                 )
                 Text(
-                    text = "Party game de deducción social: la app solo reparte roles y palabra. El show lo ponéis vosotros 😄",
+                    text = stringResource(R.string.misc_party_desc),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
                     modifier = Modifier.padding(top = 8.dp)
                 )
             }
 
-            SospechCard(title = "Redes / Proyecto") {
+            SospechCard(title = stringResource(R.string.misc_social)) {
                 LinkRow(
-                    text = "GitHub: SospechApp (repo)",
+                    text = stringResource(R.string.misc_github),
                     onClick = { uriHandler.openUri("https://github.com/manuelasan/SospechApp") }
                 )
                 LinkRow(
-                    text = "Política de privacidad",
+                    text = stringResource(R.string.misc_privacy),
                     onClick = {
                         if (privacyPolicyUrl.isNotBlank()) {
                             uriHandler.openUri(privacyPolicyUrl)
@@ -71,9 +73,9 @@ fun MiscScreen(
                 )
             }
 
-            SospechCard(title = "Créditos") {
+            SospechCard(title = stringResource(R.string.misc_credits)) {
                 Text(
-                    text = "Hecha con Kotlin + Jetpack Compose.\nIdea: Manu. Arte: tu futuro yo diseñador 😄",
+                    text = stringResource(R.string.misc_credits_text),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                 )

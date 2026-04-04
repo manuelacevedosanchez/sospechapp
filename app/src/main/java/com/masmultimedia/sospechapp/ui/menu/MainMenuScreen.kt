@@ -19,8 +19,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.masmultimedia.sospechapp.BuildConfig
+import com.masmultimedia.sospechapp.R
 import com.masmultimedia.sospechapp.ui.components.BannerAd
 import com.masmultimedia.sospechapp.ui.components.PrimaryButton
 import com.masmultimedia.sospechapp.ui.components.SecondaryButton
@@ -41,8 +43,8 @@ fun MainMenuScreen(
     SospechScaffold(
         topBar = {
             SospechTopBar(
-                title = "SospechApp",
-                subtitle = "El impostor está entre vosotros"
+                title = stringResource(R.string.splash_title),
+                subtitle = stringResource(R.string.splash_subtitle)
             )
         }
     ) { innerPadding ->
@@ -54,9 +56,9 @@ fun MainMenuScreen(
             verticalArrangement = Arrangement.spacedBy(14.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            SospechCard(title = "Modo fiesta") {
+            SospechCard(title = stringResource(R.string.main_party_mode)) {
                 Text(
-                    text = "Pasa el móvil, memoriza tu rol... y que empiece el teatro.",
+                    text = stringResource(R.string.main_party_desc),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f)
                 )
@@ -65,7 +67,7 @@ fun MainMenuScreen(
             Spacer(modifier = Modifier.height(6.dp))
 
             PrimaryButton(
-                text = "Nueva partida",
+                text = stringResource(R.string.main_new_game),
                 leadingIcon = Icons.Filled.PlayArrow,
                 onClick = onNewGameClick,
                 modifier = Modifier.fillMaxWidth()
@@ -76,7 +78,7 @@ fun MainMenuScreen(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 SecondaryButton(
-                    text = "Cómo se juega",
+                    text = stringResource(R.string.main_how_to_play),
                     leadingIcon = Icons.Filled.Info,
                     onClick = onHowToPlayClick,
                     modifier = Modifier
@@ -84,7 +86,7 @@ fun MainMenuScreen(
                         .widthIn(min = 120.dp)
                 )
                 SecondaryButton(
-                    text = "Ajustes",
+                    text = stringResource(R.string.main_settings),
                     leadingIcon = Icons.Filled.Settings,
                     onClick = onSettingsClick,
                     modifier = Modifier
@@ -94,7 +96,7 @@ fun MainMenuScreen(
             }
 
             SecondaryButton(
-                text = "Miscelánea",
+                text = stringResource(R.string.main_misc),
                 leadingIcon = Icons.Filled.Info,
                 onClick = onMiscClick,
                 modifier = Modifier.fillMaxWidth()

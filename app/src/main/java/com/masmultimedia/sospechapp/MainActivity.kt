@@ -39,7 +39,7 @@ import com.masmultimedia.sospechapp.ui.gameconfig.GameConfigScreen
 import com.masmultimedia.sospechapp.ui.menu.MainMenuScreen
 import com.masmultimedia.sospechapp.ui.misc.MiscScreen
 import com.masmultimedia.sospechapp.ui.ready.ReadyToPlayScreen
-import com.masmultimedia.sospechapp.ui.revealroles.RevealRolesScreen
+import com.masmultimedia.sospechapp.ui.revealroles.revealRolesScreen
 import com.masmultimedia.sospechapp.ui.settings.SettingsScreen
 import com.masmultimedia.sospechapp.ui.splash.SplashScreen
 import com.masmultimedia.sospechapp.ui.theme.SospechAppTheme
@@ -94,7 +94,10 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun SospechApp(gameViewModel: GameViewModel, showAds: Boolean) {
+fun SospechApp(
+    gameViewModel: GameViewModel,
+    showAds: Boolean
+) {
     val navController = rememberNavController()
 
     Surface(
@@ -194,7 +197,7 @@ fun SospechNavHost(
                 }
 
                 composable(SospechAppDestination.RevealRoles.route) {
-                    RevealRolesScreen(
+                    revealRolesScreen(
                         state = state,
                         onRevealRole = { gameViewModel.onAction(GameAction.RevealRole) },
                         onHideAndNext = { gameViewModel.onAction(GameAction.HideRoleAndNext) }

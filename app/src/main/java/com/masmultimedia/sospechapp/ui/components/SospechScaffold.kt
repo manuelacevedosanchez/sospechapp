@@ -22,7 +22,7 @@ fun SospechScaffold(
     floatingActionButton: @Composable () -> Unit = {},
     floatingActionButtonPosition: FabPosition = FabPosition.End,
     contentWindowInsets: WindowInsets = ScaffoldDefaults.contentWindowInsets,
-    // Por si algún día quieres meter “decoraciones” extra encima del fondo (estrellitas, niebla, etc.)
+    // In case you ever want to add extra "decorations" above the background (stars, fog, etc.)
     backgroundDecoration: @Composable BoxScope.() -> Unit = {},
     content: @Composable (PaddingValues) -> Unit
 ) {

@@ -14,7 +14,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.masmultimedia.sospechapp.R
 import com.masmultimedia.sospechapp.game.GameAction
 import com.masmultimedia.sospechapp.game.GameState
 import com.masmultimedia.sospechapp.ui.components.SospechCard
@@ -32,8 +34,8 @@ fun SettingsScreen(
     SospechScaffold(
         topBar = {
             SospechTopBar(
-                title = "Ajustes",
-                subtitle = "Personaliza la experiencia",
+                title = stringResource(R.string.settings_title),
+                subtitle = stringResource(R.string.settings_subtitle),
                 onBackClick = onBackClick
             )
         }
@@ -45,10 +47,10 @@ fun SettingsScreen(
                 .padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            SospechCard(title = "Experiencia") {
+            SospechCard(title = stringResource(R.string.settings_experience_title)) {
                 SettingRow(
-                    title = "Vibración (haptic)",
-                    subtitle = "Respuesta suave al pulsar botones",
+                    title = stringResource(R.string.settings_haptics_title),
+                    subtitle = stringResource(R.string.settings_haptics_subtitle),
                     checked = state.settings.hapticsEnabled,
                     onCheckedChange = { onAction(GameAction.SetHapticsEnabled(it)) }
                 )
@@ -56,8 +58,8 @@ fun SettingsScreen(
                 Spacer(Modifier.padding(top = 8.dp))
 
                 SettingRow(
-                    title = "Animaciones",
-                    subtitle = "Transiciones al revelar/ocultar rol",
+                    title = stringResource(R.string.settings_animations_title),
+                    subtitle = stringResource(R.string.settings_animations_subtitle),
                     checked = state.settings.animationsEnabled,
                     onCheckedChange = { onAction(GameAction.SetAnimationsEnabled(it)) }
                 )
@@ -65,16 +67,16 @@ fun SettingsScreen(
                 Spacer(Modifier.padding(top = 8.dp))
 
                 SettingRow(
-                    title = "Mantener pantalla encendida",
-                    subtitle = "Evita que se apague en medio de la partida",
+                    title = stringResource(R.string.settings_keep_screen_on_title),
+                    subtitle = stringResource(R.string.settings_keep_screen_on_subtitle),
                     checked = state.settings.keepScreenOn,
                     onCheckedChange = { onAction(GameAction.SetKeepScreenOn(it)) }
                 )
             }
 
-            SospechCard(title = "Nota") {
+            SospechCard(title = stringResource(R.string.settings_note_title)) {
                 Text(
-                    text = "Versión de prueba. Algunos ajustes podrían no estar disponibles o no funcionar correctamente.",
+                    text = stringResource(R.string.settings_note_text),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                 )

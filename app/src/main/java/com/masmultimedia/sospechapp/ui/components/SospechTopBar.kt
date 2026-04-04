@@ -14,6 +14,8 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.masmultimedia.sospechapp.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,7 +59,7 @@ fun SospechTopBar(
                 IconButton(onClick = onBackClick) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Volver"
+                        contentDescription = stringResource(R.string.config_back)
                     )
                 }
             }

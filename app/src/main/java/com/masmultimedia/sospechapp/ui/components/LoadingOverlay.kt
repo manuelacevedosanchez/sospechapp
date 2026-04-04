@@ -10,7 +10,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.masmultimedia.sospechapp.R
 
 @Composable
 fun LoadingOverlay(
@@ -23,7 +25,7 @@ fun LoadingOverlay(
             .wrapContentSize(Alignment.Center)
     ) {
         SospechCard(
-            title = "Un momento",
+            title = stringResource(R.string.loading_title),
             modifier = Modifier.padding(24.dp)
         ) {
             Text(

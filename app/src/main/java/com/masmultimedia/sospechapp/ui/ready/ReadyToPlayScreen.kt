@@ -13,7 +13,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.masmultimedia.sospechapp.R
 import com.masmultimedia.sospechapp.ui.components.SospechScaffold
 import com.masmultimedia.sospechapp.ui.components.SospechTopBar
 
@@ -26,8 +28,8 @@ fun ReadyToPlayScreen(
     SospechScaffold(
         topBar = {
             SospechTopBar(
-                title = "Listo para jugar",
-                subtitle = "Que empiece el teatro",
+                title = stringResource(R.string.ready_title),
+                subtitle = stringResource(R.string.ready_subtitle),
                 onBackClick = onBackToMenu
             )
         }
@@ -41,13 +43,12 @@ fun ReadyToPlayScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "¡Todo listo!",
+                text = stringResource(R.string.ready_all_set),
                 style = MaterialTheme.typography.headlineMedium
             )
 
             Text(
-                text = "Todos los jugadores conocen su rol.\n" +
-                        "Ya podéis empezar a jugar hablando.",
+                text = stringResource(R.string.ready_instructions),
                 style = MaterialTheme.typography.bodyLarge
             )
 
@@ -57,7 +58,7 @@ fun ReadyToPlayScreen(
                 onClick = onBackToMenu,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = "Volver al menú")
+                Text(text = stringResource(R.string.ready_back_to_menu))
             }
         }
     }

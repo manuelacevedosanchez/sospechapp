@@ -16,7 +16,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.masmultimedia.sospechapp.R
 import com.masmultimedia.sospechapp.game.GameState
 import com.masmultimedia.sospechapp.game.PlayerRole
 import com.masmultimedia.sospechapp.ui.components.PrimaryButton
@@ -26,7 +28,7 @@ import com.masmultimedia.sospechapp.ui.components.SospechTopBar
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun RevealRolesScreen(
+fun revealRolesScreen(
     state: GameState,
     onRevealRole: () -> Unit,
     onHideAndNext: () -> Unit,
@@ -39,8 +41,8 @@ fun RevealRolesScreen(
     SospechScaffold(
         topBar = {
             SospechTopBar(
-                title = "Revelar roles",
-                subtitle = "Jugador $playerNumber de $totalPlayers"
+                title = stringResource(R.string.reveal_roles_title),
+                subtitle = stringResource(R.string.reveal_roles_subtitle, playerNumber, totalPlayers)
             )
         }
     ) { innerPadding ->
@@ -52,9 +54,9 @@ fun RevealRolesScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             if (!state.isGameStarted || state.roles.isEmpty()) {
-                SospechCard(title = "Sin partida") {
+                SospechCard(title = stringResource(R.string.reveal_roles_no_game_title)) {
                     Text(
-                        text = "No hay partida activa. Vuelve al menú y crea una nueva.",
+                        text = stringResource(R.string.reveal_roles_no_game_desc),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f)
                     )
@@ -62,7 +64,7 @@ fun RevealRolesScreen(
                 return@SospechScaffold
             }
 
-            RevealRolesContent(
+            revealRolesContent(
                 isRoleVisible = state.isRoleVisible,
                 playerIndex = state.currentPlayerIndex,
                 state = state,
@@ -74,7 +76,7 @@ fun RevealRolesScreen(
 }
 
 @Composable
-private fun ColumnScope.RevealRolesContent(
+private fun ColumnScope.revealRolesContent(
     isRoleVisible: Boolean,
     playerIndex: Int,
     state: GameState,
@@ -85,9 +87,9 @@ private fun ColumnScope.RevealRolesContent(
     val playerNumber = playerIndex + 1
 
     if (!isRoleVisible) {
-        SospechCard(title = "Turno del jugador $playerNumber") {
+        SospechCard(title = stringResource(R.string.reveal_roles_turn_title, playerNumber)) {
             Text(
-                text = "Pasa el móvil a esa persona y pulsa para ver su rol.",
+                text = stringResource(R.string.reveal_roles_turn_desc),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f)
             )
@@ -95,17 +97,17 @@ private fun ColumnScope.RevealRolesContent(
             Spacer(modifier = Modifier.height(14.dp))
 
             Text(
-                text = "Consejo: que nadie mire la pantalla 👀",
+                text = stringResource(R.string.reveal_roles_tip),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
             )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-        Spacer(modifier = Modifier.weight(1f))   // ✅ ahora sí
+        Spacer(modifier = Modifier.weight(1f))   // ✅ now it works
 
         PrimaryButton(
-            text = "Ver rol",
+            text = stringResource(R.string.reveal_roles_show_role),
             onClick = {
                 if (state.settings.hapticsEnabled) {
                     haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
@@ -117,13 +119,13 @@ private fun ColumnScope.RevealRolesContent(
     } else {
         val role = state.roles.getOrNull(playerIndex) ?: PlayerRole.UNKNOWN
 
-        RoleCard(role = role, word = state.currentWord)
+        roleCard(role = role, word = state.currentWord)
 
         Spacer(modifier = Modifier.height(16.dp))
-        Spacer(modifier = Modifier.weight(1f))   // ✅ ahora sí
+        Spacer(modifier = Modifier.weight(1f))   // ✅ now it works
 
         PrimaryButton(
-            text = "Ocultar y pasar el móvil",
+            text = stringResource(R.string.reveal_roles_hide_and_next),
             onClick = {
                 if (state.settings.hapticsEnabled) {
                     haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
@@ -136,22 +138,22 @@ private fun ColumnScope.RevealRolesContent(
 }
 
 @Composable
-private fun RoleCard(
+private fun roleCard(
     role: PlayerRole,
     word: String?
 ) {
     val isImpostor = role == PlayerRole.IMPOSTOR
     val title = when (role) {
-        PlayerRole.IMPOSTOR -> "Eres el IMPOSTOR"
-        PlayerRole.CITIZEN -> "Eres CIUDADANO"
-        PlayerRole.UNKNOWN -> "Rol no disponible"
+        PlayerRole.IMPOSTOR -> stringResource(R.string.reveal_roles_impostor)
+        PlayerRole.CITIZEN -> stringResource(R.string.reveal_roles_citizen)
+        PlayerRole.UNKNOWN -> stringResource(R.string.reveal_roles_unknown)
     }
 
     SospechCard(title = title) {
         when (role) {
             PlayerRole.IMPOSTOR -> {
                 Text(
-                    text = "No conoces la palabra.\nEscucha, improvisa… y no te delates.",
+                    text = stringResource(R.string.reveal_roles_impostor_desc),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.error
                 )
@@ -159,13 +161,13 @@ private fun RoleCard(
 
             PlayerRole.CITIZEN -> {
                 Text(
-                    text = "La palabra es:",
+                    text = stringResource(R.string.reveal_roles_word_label),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f)
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
-                    text = word.orEmpty().ifBlank { "—" },
+                    text = word.orEmpty().ifBlank { stringResource(R.string.reveal_roles_word_dash) },
                     style = MaterialTheme.typography.headlineMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -173,7 +175,7 @@ private fun RoleCard(
 
             PlayerRole.UNKNOWN -> {
                 Text(
-                    text = "No se ha podido determinar tu rol. Vuelve a crear la partida.",
+                    text = stringResource(R.string.reveal_roles_unknown_desc),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f)
                 )
@@ -183,7 +185,7 @@ private fun RoleCard(
         if (isImpostor) {
             Spacer(modifier = Modifier.height(12.dp))
             Text(
-                text = "Tip: haz preguntas, copia estilos… y evita detalles concretos.",
+                text = stringResource(R.string.reveal_roles_impostor_tip),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
             )

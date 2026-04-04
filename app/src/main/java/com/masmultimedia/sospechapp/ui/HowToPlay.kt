@@ -17,7 +17,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.masmultimedia.sospechapp.R
 import com.masmultimedia.sospechapp.ui.components.SospechScaffold
 import com.masmultimedia.sospechapp.ui.components.SospechTopBar
 
@@ -30,8 +32,8 @@ fun HowToPlayScreen(
     SospechScaffold(
         topBar = {
             SospechTopBar(
-                title = "Cómo se juega",
-                subtitle = "Reglas rápidas",
+                title = stringResource(R.string.how_to_play_title),
+                subtitle = stringResource(R.string.how_to_play_subtitle),
                 onBackClick = onBackClick
             )
         }
@@ -45,12 +47,7 @@ fun HowToPlayScreen(
         ) {
 
             Text(
-                text = "1. Reúne a tus amigos y abrid SospechApp.\n\n" +
-                        "2. Configurad la partida (jugadores e impostores) y, si queréis, escribid una palabra. Si la dejáis vacía, se usará una aleatoria.\n\n" +
-                        "3. Pasad el móvil para que cada jugador vea su rol: ciudadanos verán la palabra, el impostor no.\n\n" +
-                        "4. Hablando, cada jugador describe la palabra sin decirla directamente, mientras el impostor intenta pasar desapercibido.\n\n" +
-                        "5. Al final, votad quién creéis que es el impostor. Podéis darle las vueltas que queráis a las reglas para adaptarlas a vuestro grupo.\n\n" +
-                        "6. ¡Divertíos y jugad varias rondas!"
+                text = stringResource(R.string.how_to_play_steps),
             )
 
             Spacer(modifier = Modifier.weight(1f))
@@ -59,7 +56,7 @@ fun HowToPlayScreen(
                 onClick = onBackClick,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = "Volver al menú")
+                Text(text = stringResource(R.string.how_to_play_back_to_menu))
             }
         }
     }
