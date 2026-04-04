@@ -2,6 +2,7 @@ package com.masmultimedia.sospechapp
 
 import android.util.Log
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -27,9 +28,31 @@ class MainMenuScreenTest {
         Log.d("MainMenuScreenTest", "Screenshot taken: $fileName, success: $success")
     }
 
+    private fun waitForMenuScreen(composeTestRule: ComposeTestRule) {
+        val variants = listOf("Nueva partida", "New Game", "Cómo se juega", "Como se juega", "How to play")
+        val start = System.currentTimeMillis()
+        val timeout = 5000L
+        var found = false
+        while (System.currentTimeMillis() - start < timeout) {
+            found = variants.any { variant ->
+                try {
+                    composeTestRule.onAllNodes(hasText(variant, substring = true)).fetchSemanticsNodes().isNotEmpty()
+                } catch (_: Exception) {
+                    false
+                }
+            }
+            if (found) break
+            Thread.sleep(100)
+        }
+        if (!found) {
+            throw AssertionError("Menu screen did not appear within timeout")
+        }
+    }
+
     @Test
     fun mainMenu_showsNewGame_andCanClick() {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        waitForMenuScreen(composeTestRule)
         // Checks that the "New Game" button is visible and can be clicked (robust to language)
         val variants = listOf("Nueva partida", "New Game")
         var found = false
@@ -54,6 +77,7 @@ class MainMenuScreenTest {
     @Test
     fun mainMenu_showsHowToPlay() {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        waitForMenuScreen(composeTestRule)
         // Checks that the "How to play?" button is visible (robust to language)
         val variants = listOf("Cómo se juega", "Como se juega", "How to play")
         var found = false
@@ -76,6 +100,7 @@ class MainMenuScreenTest {
 
     @Test
     fun mainMenu_hasAnyTextNode() {
+        waitForMenuScreen(composeTestRule)
         // Verifies that at least one text node exists in the main menu
         val allTextNodes = composeTestRule.onAllNodes(hasText("", substring = true))
         val count = allTextNodes.fetchSemanticsNodes().size
