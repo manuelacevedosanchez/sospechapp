@@ -108,6 +108,7 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+    androidTestImplementation("androidx.test.uiautomator:uiautomator:2.3.0")
 
     // Modern unit testing dependencies
     testImplementation(libs.androidx.test.core)

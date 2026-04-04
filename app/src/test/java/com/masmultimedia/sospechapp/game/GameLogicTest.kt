@@ -35,20 +35,3 @@ class GameLogicTest {
         assertThat(palabra3).isEqualTo("Personalizada")
     }
 }
-
-private class TestGameViewModel {
-    fun generateRoles(totalPlayers: Int, impostors: Int): List<PlayerRole> {
-        val roles = mutableListOf<PlayerRole>()
-        repeat(impostors) { roles.add(PlayerRole.IMPOSTOR) }
-        repeat(totalPlayers - impostors) { roles.add(PlayerRole.CITIZEN) }
-        roles.shuffle()
-        return roles
-    }
-    fun isValidPlayers(totalPlayers: Int, impostors: Int): Boolean {
-        return totalPlayers >= 3 && impostors >= 1 && impostors < totalPlayers
-    }
-    fun selectWord(wordInput: String?): String {
-        return wordInput?.takeIf { it.isNotBlank() } ?: "TestWord"
-    }
-}
-
