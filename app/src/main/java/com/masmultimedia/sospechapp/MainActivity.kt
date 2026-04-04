@@ -16,13 +16,18 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.google.android.gms.ads.MobileAds
+import com.google.android.ump.ConsentRequestParameters
+import com.google.android.ump.UserMessagingPlatform
 import com.masmultimedia.sospechapp.game.GameAction
 import com.masmultimedia.sospechapp.game.GameEffect
 import com.masmultimedia.sospechapp.game.GameViewModel
@@ -38,24 +43,58 @@ import com.masmultimedia.sospechapp.ui.revealroles.RevealRolesScreen
 import com.masmultimedia.sospechapp.ui.settings.SettingsScreen
 import com.masmultimedia.sospechapp.ui.splash.SplashScreen
 import com.masmultimedia.sospechapp.ui.theme.SospechAppTheme
+import java.util.concurrent.atomic.AtomicBoolean
 
 class MainActivity : ComponentActivity() {
 
     private val gameViewModel: GameViewModel by viewModels()
+    private var canRequestAds by mutableStateOf(false)
+    private val isMobileAdsInitialized = AtomicBoolean(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        requestConsentAndInitAds()
         enableEdgeToEdge()
         setContent {
             SospechAppTheme {
-                SospechApp(gameViewModel)
+                SospechApp(gameViewModel, showAds = canRequestAds)
             }
         }
+    }
+
+    private fun requestConsentAndInitAds() {
+        val consentInformation = UserMessagingPlatform.getConsentInformation(this)
+        val params = ConsentRequestParameters.Builder().build()
+
+        consentInformation.requestConsentInfoUpdate(
+            this,
+            params,
+            {
+                UserMessagingPlatform.loadAndShowConsentFormIfRequired(this) {
+                    canRequestAds = consentInformation.canRequestAds()
+                    if (canRequestAds) initializeMobileAdsSdk()
+                }
+            },
+            {
+                // If consent update fails, keep ads disabled to stay conservative.
+                canRequestAds = false
+            }
+        )
+
+        if (consentInformation.canRequestAds()) {
+            canRequestAds = true
+            initializeMobileAdsSdk()
+        }
+    }
+
+    private fun initializeMobileAdsSdk() {
+        if (isMobileAdsInitialized.getAndSet(true)) return
+        MobileAds.initialize(this) {}
     }
 }
 
 @Composable
-fun SospechApp(gameViewModel: GameViewModel) {
+fun SospechApp(gameViewModel: GameViewModel, showAds: Boolean) {
     val navController = rememberNavController()
 
     Surface(
@@ -64,7 +103,8 @@ fun SospechApp(gameViewModel: GameViewModel) {
     ) {
         SospechNavHost(
             navController = navController,
-            gameViewModel = gameViewModel
+            gameViewModel = gameViewModel,
+            showAds = showAds
         )
     }
 }
@@ -72,7 +112,8 @@ fun SospechApp(gameViewModel: GameViewModel) {
 @Composable
 fun SospechNavHost(
     navController: NavHostController,
-    gameViewModel: GameViewModel
+    gameViewModel: GameViewModel,
+    showAds: Boolean
 ) {
     val state by gameViewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -126,7 +167,8 @@ fun SospechNavHost(
                         onNewGameClick = { navController.navigate(SospechAppDestination.GameConfig.route) },
                         onHowToPlayClick = { navController.navigate(SospechAppDestination.HowToPlay.route) },
                         onSettingsClick = { navController.navigate(SospechAppDestination.Settings.route) },
-                        onMiscClick = { navController.navigate(SospechAppDestination.Misc.route) }
+                        onMiscClick = { navController.navigate(SospechAppDestination.Misc.route) },
+                        showAds = showAds
                     )
                 }
 

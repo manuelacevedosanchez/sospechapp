@@ -25,6 +25,7 @@ fun MiscScreen(
     modifier: Modifier = Modifier
 ) {
     val uriHandler = LocalUriHandler.current
+    val privacyPolicyUrl = BuildConfig.PRIVACY_POLICY_URL
 
     SospechScaffold(
         topBar = {
@@ -61,8 +62,12 @@ fun MiscScreen(
                     onClick = { uriHandler.openUri("https://github.com/manuelasan/SospechApp") }
                 )
                 LinkRow(
-                    text = "Política de privacidad (placeholder)",
-                    onClick = { /* cuando la tengas la enchufas */ }
+                    text = "Política de privacidad",
+                    onClick = {
+                        if (privacyPolicyUrl.isNotBlank()) {
+                            uriHandler.openUri(privacyPolicyUrl)
+                        }
+                    }
                 )
             }
 

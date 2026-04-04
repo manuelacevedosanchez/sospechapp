@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
@@ -19,6 +20,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.masmultimedia.sospechapp.BuildConfig
+import com.masmultimedia.sospechapp.ui.components.BannerAd
 import com.masmultimedia.sospechapp.ui.components.PrimaryButton
 import com.masmultimedia.sospechapp.ui.components.SecondaryButton
 import com.masmultimedia.sospechapp.ui.components.SospechCard
@@ -32,6 +35,7 @@ fun MainMenuScreen(
     onHowToPlayClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onMiscClick: () -> Unit,
+    showAds: Boolean,
     modifier: Modifier = Modifier
 ) {
     SospechScaffold(
@@ -69,19 +73,23 @@ fun MainMenuScreen(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 SecondaryButton(
                     text = "Cómo se juega",
                     leadingIcon = Icons.Filled.Info,
                     onClick = onHowToPlayClick,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .fillMaxWidth(0.48f)
+                        .widthIn(min = 120.dp)
                 )
                 SecondaryButton(
                     text = "Ajustes",
                     leadingIcon = Icons.Filled.Settings,
                     onClick = onSettingsClick,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .fillMaxWidth(0.92f)
+                        .widthIn(min = 120.dp)
                 )
             }
 
@@ -91,6 +99,15 @@ fun MainMenuScreen(
                 onClick = onMiscClick,
                 modifier = Modifier.fillMaxWidth()
             )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (showAds) {
+                BannerAd(
+                    adUnitId = BuildConfig.ADMOB_BANNER_AD_UNIT_ID,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
     }
 }
