@@ -1,4 +1,8 @@
 [versions]
+androidxTestCore = "1.5.0"
+kotlinxCoroutinesTest = "1.8.1"
+truth = "1.4.2"
+mockitoKotlin = "5.2.1"
 agp = "9.1.0"
 kotlin = "2.3.20"
 coreKtx = "1.18.0"
@@ -20,6 +24,10 @@ playServicesAds = "25.1.0"
 ump = "4.0.0"
 
 [libraries]
+androidx-test-core = { module = "androidx.test:core", version.ref = "androidxTestCore" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
+truth = { module = "com.google.truth:truth", version.ref = "truth" }
+mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlin" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

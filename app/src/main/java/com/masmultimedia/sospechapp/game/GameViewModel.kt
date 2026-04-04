@@ -15,17 +15,25 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class GameViewModel(application: Application) : AndroidViewModel(application) {
+interface StringProvider {
+    fun getString(resId: Int): String
+}
+
+class AndroidStringProvider(private val context: android.content.Context) : StringProvider {
+    override fun getString(resId: Int): String = context.getString(resId)
+}
+
+class GameViewModel(
+    application: Application,
+    private val stringProvider: StringProvider = AndroidStringProvider(application.applicationContext),
+    private val wordsRepository: WordsRepository = AssetsWordsRepository(context = application.applicationContext)
+) : AndroidViewModel(application) {
 
     private val _uiState = MutableStateFlow(GameState())
     val uiState: StateFlow<GameState> = _uiState.asStateFlow()
 
     private val _effect = MutableSharedFlow<GameEffect>()
     val effect: SharedFlow<GameEffect> = _effect.asSharedFlow()
-
-    // Repo local (assets) to run now
-    private val wordsRepository: WordsRepository =
-        AssetsWordsRepository(context = application.applicationContext)
 
     fun onAction(action: GameAction) {
         when (action) {
@@ -54,10 +62,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun startGame(totalPlayers: Int, impostors: Int, wordInput: String?) {
-        val context = getApplication<Application>().applicationContext
-
         if (totalPlayers < 3 || impostors < 1 || impostors >= totalPlayers) {
-            sendError(context.getString(R.string.error_invalid_players))
+            sendError(stringProvider.getString(R.string.error_invalid_players))
             return
         }
 
