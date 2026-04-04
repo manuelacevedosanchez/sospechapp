@@ -1,0 +1,4 @@
+SospechApp
+
+The party game of hidden roles and deduction. Play with friends, anytime!
+

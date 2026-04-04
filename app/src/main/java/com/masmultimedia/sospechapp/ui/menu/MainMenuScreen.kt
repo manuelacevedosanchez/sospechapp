@@ -53,7 +53,7 @@ fun MainMenuScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
+            verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             SospechCard(title = stringResource(R.string.main_party_mode)) {

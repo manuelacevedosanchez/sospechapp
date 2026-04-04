@@ -1,0 +1,10 @@
+SospechApp is the ultimate party game for friends and family! Discover who the impostors are, bluff, and deduce in this fun and fast-paced game. No need for physical cards—everything you need is in the app!
+
+Features:
+- Play with 3+ players locally
+- Random word generator and role assignment
+- Customizable game settings
+- Modern, intuitive interface
+- No registration required
+
+Gather your friends, start a game, and let the fun begin!
