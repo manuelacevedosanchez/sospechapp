@@ -66,6 +66,16 @@ fun MainMenuScreen(
 
             Spacer(modifier = Modifier.height(6.dp))
 
+            SospechCard(title = stringResource(R.string.main_future_modes_title)) {
+                Text(
+                    text = stringResource(R.string.main_future_modes_desc),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
+
             PrimaryButton(
                 text = stringResource(R.string.main_new_game),
                 leadingIcon = Icons.Filled.PlayArrow,

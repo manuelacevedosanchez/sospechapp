@@ -28,10 +28,14 @@
     <string name="misc_about">About the app</string>
     <string name="misc_party_desc">Social deduction party game: the app only assigns roles and the word. The show is up to you 😄</string>
     <string name="misc_social">Social / Project</string>
-    <string name="misc_github">GitHub: SospechApp (repo)</string>
+    <string name="misc_github">GitHub: SospechApp (repo pending to add)</string>
     <string name="misc_privacy">Privacy policy</string>
     <string name="misc_credits">Credits</string>
-    <string name="misc_credits_text">Made with Kotlin + Jetpack Compose.\nIdea: Manu. Art: your future designer self 😄</string>
+    <string name="misc_credits_text">Made with Kotlin + Jetpack Compose.</string>
+    <string name="misc_credits_linkedin">LinkedIn: Manu Acevedo Sánchez</string>
+    <string name="misc_credits_linkedin_btn">View profile on LinkedIn</string>
+    <string name="misc_acknowledgements">Acknowledgements</string>
+    <string name="misc_acknowledgements_list">Thronak -&gt; Tester</string>
     <string name="loading_word">Loading word…</string>
     <string name="loading_title">One moment</string>
     <string name="config_title">New game</string>
@@ -81,4 +85,9 @@
     <string name="misc_contact">Contact / Feedback</string>
     <string name="misc_contact_email_subject">SospechApp Feedback</string>
     <string name="misc_contact_email">manuacedevops@gmail.com</string>
+    <string name="main_future_modes_title">Other modes (coming soon)</string>
+    <string name="main_future_modes_desc">- Online mode
+- Quick mode
+- Themed mode
+Got ideas? Send me feedback!</string>
 </resources>

@@ -74,6 +74,7 @@ fun SettingsScreen(
                 )
             }
 
+
             SospechCard(title = stringResource(R.string.settings_note_title)) {
                 Text(
                     text = stringResource(R.string.settings_note_text),

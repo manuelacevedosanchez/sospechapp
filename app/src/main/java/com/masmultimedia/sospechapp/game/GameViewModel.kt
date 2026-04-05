@@ -55,6 +55,7 @@ class GameViewModel(
                 _uiState.update { it.copy(settings = it.settings.copy(keepScreenOn = action.enabled)) }
             }
 
+
             GameAction.RevealRole -> revealRole()
             GameAction.HideRoleAndNext -> hideRoleAndNext()
             GameAction.ResetGame -> resetGame()

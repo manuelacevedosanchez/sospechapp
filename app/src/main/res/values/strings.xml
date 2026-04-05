@@ -4,6 +4,11 @@
     <string name="splash_subtitle">El impostor está entre vosotros</string>
     <string name="main_party_mode">Modo fiesta</string>
     <string name="main_party_desc">Pasa el móvil, memoriza tu rol… y que empiece el teatro.</string>
+    <string name="main_future_modes_title">Otros modos (próximamente)</string>
+    <string name="main_future_modes_desc">- Modo online
+- Modo rápido
+- Modo temático
+¿Tienes ideas? ¡Envíame feedback!</string>
     <string name="main_new_game">Nueva partida</string>
     <string name="main_how_to_play">Cómo se juega</string>
     <string name="main_settings">Ajustes</string>
@@ -28,10 +33,14 @@
     <string name="misc_about">Sobre la app</string>
     <string name="misc_party_desc">Party game de deducción social: la app solo reparte roles y palabra. El show lo ponéis vosotros 😄</string>
     <string name="misc_social">Redes / Proyecto</string>
-    <string name="misc_github">GitHub: SospechApp (repo)</string>
+    <string name="misc_github">GitHub: SospechApp (repo pendiente de añadir)</string>
     <string name="misc_privacy">Política de privacidad</string>
     <string name="misc_credits">Créditos</string>
-    <string name="misc_credits_text">Hecha con Kotlin + Jetpack Compose.\nIdea: Manu. Arte: tu futuro yo diseñador 😄</string>
+    <string name="misc_credits_text">Hecha con Kotlin + Jetpack Compose.</string>
+    <string name="misc_credits_linkedin">LinkedIn: Manu Acevedo Sánchez</string>
+    <string name="misc_credits_linkedin_btn">Ver perfil en LinkedIn</string>
+    <string name="misc_acknowledgements">Agradecimientos</string>
+    <string name="misc_acknowledgements_list">Thronak -&gt; Tester</string>
     <string name="loading_word">Cargando palabra…</string>
     <string name="loading_title">Un momento</string>
     <string name="config_title">Nueva partida</string>

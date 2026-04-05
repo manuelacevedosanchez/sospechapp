@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import com.masmultimedia.sospechapp.game.GameViewModelFactory
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -32,13 +31,14 @@ import com.google.android.ump.UserMessagingPlatform
 import com.masmultimedia.sospechapp.game.GameAction
 import com.masmultimedia.sospechapp.game.GameEffect
 import com.masmultimedia.sospechapp.game.GameViewModel
+import com.masmultimedia.sospechapp.game.GameViewModelFactory
 import com.masmultimedia.sospechapp.navigation.SospechAppDestination
 import com.masmultimedia.sospechapp.ui.HowToPlayScreen
 import com.masmultimedia.sospechapp.ui.components.LoadingOverlay
 import com.masmultimedia.sospechapp.ui.components.LocalSospechSnackbarHostState
 import com.masmultimedia.sospechapp.ui.gameconfig.GameConfigScreen
 import com.masmultimedia.sospechapp.ui.menu.MainMenuScreen
-import com.masmultimedia.sospechapp.ui.misc.miscScreen
+import com.masmultimedia.sospechapp.ui.misc.MiscScreen
 import com.masmultimedia.sospechapp.ui.ready.ReadyToPlayScreen
 import com.masmultimedia.sospechapp.ui.revealroles.revealRolesScreen
 import com.masmultimedia.sospechapp.ui.settings.SettingsScreen
@@ -228,7 +228,7 @@ fun SospechNavHost(
                 }
 
                 composable(SospechAppDestination.Misc.route) {
-                    miscScreen(
+                    MiscScreen(
                         onBackClick = { navController.popBackStack() }
                     )
                 }
