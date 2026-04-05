@@ -38,7 +38,7 @@ import com.masmultimedia.sospechapp.ui.components.LoadingOverlay
 import com.masmultimedia.sospechapp.ui.components.LocalSospechSnackbarHostState
 import com.masmultimedia.sospechapp.ui.gameconfig.GameConfigScreen
 import com.masmultimedia.sospechapp.ui.menu.MainMenuScreen
-import com.masmultimedia.sospechapp.ui.misc.MiscScreen
+import com.masmultimedia.sospechapp.ui.misc.miscScreen
 import com.masmultimedia.sospechapp.ui.ready.ReadyToPlayScreen
 import com.masmultimedia.sospechapp.ui.revealroles.revealRolesScreen
 import com.masmultimedia.sospechapp.ui.settings.SettingsScreen
@@ -228,7 +228,7 @@ fun SospechNavHost(
                 }
 
                 composable(SospechAppDestination.Misc.route) {
-                    MiscScreen(
+                    miscScreen(
                         onBackClick = { navController.popBackStack() }
                     )
                 }
