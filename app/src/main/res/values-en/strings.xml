@@ -3,7 +3,7 @@
     <string name="splash_title">SospechApp</string>
     <string name="splash_subtitle">The impostor is among you</string>
     <string name="main_party_mode">Party mode</string>
-    <string name="main_party_desc">Pass the phone, memorize your role... let the acting begin.</string>
+    <string name="main_party_desc">Pass the phone, memorize your role… let the acting begin.</string>
     <string name="main_new_game">New Game</string>
     <string name="main_how_to_play">How to play?</string>
     <string name="main_settings">Settings</string>
@@ -32,7 +32,7 @@
     <string name="misc_privacy">Privacy policy</string>
     <string name="misc_credits">Credits</string>
     <string name="misc_credits_text">Made with Kotlin + Jetpack Compose.\nIdea: Manu. Art: your future designer self 😄</string>
-    <string name="loading_word">Loading word...</string>
+    <string name="loading_word">Loading word…</string>
     <string name="loading_title">One moment</string>
     <string name="config_title">New game</string>
     <string name="config_subtitle">Set up the round</string>
@@ -78,4 +78,7 @@
     <string name="reveal_roles_unknown_desc">Your role could not be determined. Please create a new game.</string>
     <string name="reveal_roles_impostor_tip">Tip: ask questions, copy styles… and avoid specific details.</string>
     <string name="error_invalid_players">Invalid number of players or impostors</string>
+    <string name="misc_contact">Contact / Feedback</string>
+    <string name="misc_contact_email_subject">SospechApp Feedback</string>
+    <string name="misc_contact_email">manuacedevops@gmail.com</string>
 </resources>

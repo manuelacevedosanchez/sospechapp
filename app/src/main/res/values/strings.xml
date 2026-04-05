@@ -3,7 +3,7 @@
     <string name="splash_title">SospechApp</string>
     <string name="splash_subtitle">El impostor está entre vosotros</string>
     <string name="main_party_mode">Modo fiesta</string>
-    <string name="main_party_desc">Pasa el móvil, memoriza tu rol... y que empiece el teatro.</string>
+    <string name="main_party_desc">Pasa el móvil, memoriza tu rol… y que empiece el teatro.</string>
     <string name="main_new_game">Nueva partida</string>
     <string name="main_how_to_play">Cómo se juega</string>
     <string name="main_settings">Ajustes</string>
@@ -32,7 +32,7 @@
     <string name="misc_privacy">Política de privacidad</string>
     <string name="misc_credits">Créditos</string>
     <string name="misc_credits_text">Hecha con Kotlin + Jetpack Compose.\nIdea: Manu. Arte: tu futuro yo diseñador 😄</string>
-    <string name="loading_word">Cargando palabra...</string>
+    <string name="loading_word">Cargando palabra…</string>
     <string name="loading_title">Un momento</string>
     <string name="config_title">Nueva partida</string>
     <string name="config_subtitle">Configura la ronda</string>
@@ -81,5 +81,5 @@
     <string name="error_invalid_players">Número de jugadores o impostores inválido</string>
     <string name="misc_contact">Contacto / Feedback</string>
     <string name="misc_contact_email_subject">Feedback SospechApp</string>
-    <string name="misc_contact_email">soporte@tudominio.com</string>
+    <string name="misc_contact_email">manuacedevops@gmail.com</string>
 </resources>
