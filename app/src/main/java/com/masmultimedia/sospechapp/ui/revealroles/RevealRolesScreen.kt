@@ -28,7 +28,7 @@ import com.masmultimedia.sospechapp.ui.components.SospechTopBar
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun revealRolesScreen(
+fun RevealRolesScreen(
     state: GameState,
     onRevealRole: () -> Unit,
     onHideAndNext: () -> Unit,
@@ -64,7 +64,7 @@ fun revealRolesScreen(
                 return@SospechScaffold
             }
 
-            revealRolesContent(
+            RevealRolesContent(
                 isRoleVisible = state.isRoleVisible,
                 playerIndex = state.currentPlayerIndex,
                 state = state,
@@ -76,7 +76,7 @@ fun revealRolesScreen(
 }
 
 @Composable
-private fun ColumnScope.revealRolesContent(
+private fun ColumnScope.RevealRolesContent(
     isRoleVisible: Boolean,
     playerIndex: Int,
     state: GameState,
@@ -119,7 +119,7 @@ private fun ColumnScope.revealRolesContent(
     } else {
         val role = state.roles.getOrNull(playerIndex) ?: PlayerRole.UNKNOWN
 
-        roleCard(role = role, word = state.currentWord)
+        RoleCard(role = role, word = state.currentWord)
 
         Spacer(modifier = Modifier.height(16.dp))
         Spacer(modifier = Modifier.weight(1f))   // ✅ now it works
@@ -138,7 +138,7 @@ private fun ColumnScope.revealRolesContent(
 }
 
 @Composable
-private fun roleCard(
+private fun RoleCard(
     role: PlayerRole,
     word: String?
 ) {

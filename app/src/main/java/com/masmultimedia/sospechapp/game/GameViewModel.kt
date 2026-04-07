@@ -40,7 +40,9 @@ class GameViewModel(
             is GameAction.StartGame -> startGame(
                 action.totalPlayers,
                 action.impostors,
-                action.wordInput
+                action.wordInput,
+                action.category,
+                action.difficulty
             )
 
             is GameAction.SetHapticsEnabled -> {
@@ -62,7 +64,14 @@ class GameViewModel(
         }
     }
 
-    private fun startGame(totalPlayers: Int, impostors: Int, wordInput: String?) {
+    // Update startGame to accept category and difficulty
+    private fun startGame(
+        totalPlayers: Int,
+        impostors: Int,
+        wordInput: String?,
+        category: String?,
+        difficulty: String?
+    ) {
         if (totalPlayers < 3 || impostors < 1 || impostors >= totalPlayers) {
             sendError(stringProvider.getString(R.string.error_invalid_players))
             return

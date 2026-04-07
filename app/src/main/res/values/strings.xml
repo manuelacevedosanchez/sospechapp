@@ -1,4 +1,18 @@
 <resources>
+    <!-- Category and difficulty selectors for new game screen -->
+    <string name="config_category">Categoría</string>
+    <string name="config_category_hint">Todas las categorías</string>
+    <string name="config_difficulty">Dificultad</string>
+    <string name="config_difficulty_hint">Todas las dificultades</string>
+    <string name="category_comida">Comida</string>
+    <string name="category_objetos">Objetos</string>
+    <string name="category_personajes">Personajes</string>
+    <string name="category_animales">Animales</string>
+    <string name="category_lugares">Lugares</string>
+    <string name="category_naturaleza">Naturaleza</string>
+    <string name="difficulty_easy">Fácil</string>
+    <string name="difficulty_medium">Media</string>
+    <string name="difficulty_hard">Difícil</string>
     <string name="app_name">SospechApp</string>
     <string name="splash_title">SospechApp</string>
     <string name="splash_subtitle">El impostor está entre vosotros</string>

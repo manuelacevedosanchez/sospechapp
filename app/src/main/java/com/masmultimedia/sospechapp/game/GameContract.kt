@@ -27,6 +27,8 @@ sealed interface GameAction {
         val totalPlayers: Int,
         val impostors: Int,
         val wordInput: String?,
+        val category: String?, // Category filter, null means all
+        val difficulty: String? // Difficulty filter, null means all
     ) : GameAction
 
     data object RevealRole : GameAction

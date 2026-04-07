@@ -40,7 +40,7 @@ import com.masmultimedia.sospechapp.ui.gameconfig.GameConfigScreen
 import com.masmultimedia.sospechapp.ui.menu.MainMenuScreen
 import com.masmultimedia.sospechapp.ui.misc.MiscScreen
 import com.masmultimedia.sospechapp.ui.ready.ReadyToPlayScreen
-import com.masmultimedia.sospechapp.ui.revealroles.revealRolesScreen
+import com.masmultimedia.sospechapp.ui.revealroles.RevealRolesScreen
 import com.masmultimedia.sospechapp.ui.settings.SettingsScreen
 import com.masmultimedia.sospechapp.ui.splash.SplashScreen
 import com.masmultimedia.sospechapp.ui.theme.SospechAppTheme
@@ -181,12 +181,14 @@ fun SospechNavHost(
                 composable(SospechAppDestination.GameConfig.route) {
                     GameConfigScreen(
                         onBackClick = { navController.popBackStack() },
-                        onStartGame = { totalPlayers, impostors, wordInput ->
+                        onStartGame = { totalPlayers, impostors, wordInput, category, difficulty ->
                             gameViewModel.onAction(
                                 GameAction.StartGame(
                                     totalPlayers = totalPlayers,
                                     impostors = impostors,
-                                    wordInput = wordInput
+                                    wordInput = wordInput,
+                                    category = category,
+                                    difficulty = difficulty
                                 )
                             )
                         }
@@ -200,7 +202,7 @@ fun SospechNavHost(
                 }
 
                 composable(SospechAppDestination.RevealRoles.route) {
-                    revealRolesScreen(
+                    RevealRolesScreen(
                         state = state,
                         onRevealRole = { gameViewModel.onAction(GameAction.RevealRole) },
                         onHideAndNext = { gameViewModel.onAction(GameAction.HideRoleAndNext) }

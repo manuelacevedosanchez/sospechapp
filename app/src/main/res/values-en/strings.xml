@@ -90,4 +90,17 @@
 - Quick mode
 - Themed mode
 Got ideas? Send me feedback!</string>
+    <string name="config_category">Category</string>
+    <string name="config_category_hint">All categories</string>
+    <string name="config_difficulty">Difficulty</string>
+    <string name="config_difficulty_hint">All difficulties</string>
+    <string name="category_comida">Food</string>
+    <string name="category_objetos">Objects</string>
+    <string name="category_personajes">Characters</string>
+    <string name="category_animales">Animals</string>
+    <string name="category_lugares">Places</string>
+    <string name="category_naturaleza">Nature</string>
+    <string name="difficulty_easy">Easy</string>
+    <string name="difficulty_medium">Medium</string>
+    <string name="difficulty_hard">Hard</string>
 </resources>
