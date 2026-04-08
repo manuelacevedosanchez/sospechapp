@@ -73,15 +73,6 @@ fun SettingsScreen(
                     onCheckedChange = { onAction(GameAction.SetKeepScreenOn(it)) }
                 )
             }
-
-
-            SospechCard(title = stringResource(R.string.settings_note_title)) {
-                Text(
-                    text = stringResource(R.string.settings_note_text),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
-                )
-            }
         }
     }
 }
