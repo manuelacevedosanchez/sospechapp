@@ -59,7 +59,7 @@ fun ReadyToPlayScreen(
 
             if (showAds) {
                 BannerAd(
-                    adUnitId = BuildConfig.ADMOB_BANNER_AD_UNIT_ID,
+                    adUnitId = BuildConfig.ADMOB_BANNER_READY_AD_UNIT_ID,
                     modifier = Modifier.fillMaxWidth()
                 )
             }

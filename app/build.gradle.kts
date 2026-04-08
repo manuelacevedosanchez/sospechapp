@@ -44,7 +44,10 @@ android {
     buildTypes {
         debug {
             buildConfigField("String", "PRIVACY_POLICY_URL", "\"https://manuelasan.github.io/SospechApp/privacy.html\"")
+            // AdMob test ad unit IDs (used ONLY in debug builds)
             buildConfigField("String", "ADMOB_BANNER_AD_UNIT_ID", "\"ca-app-pub-3940256099942544/6300978111\"")
+            buildConfigField("String", "ADMOB_BANNER_READY_AD_UNIT_ID", "\"ca-app-pub-3940256099942544/6300978111\"")
+            // Do NOT use real AdMob IDs in debug builds
         }
 
         release {
@@ -52,7 +55,10 @@ android {
             isShrinkResources = true
             signingConfig = signingConfigs.getByName("release")
             buildConfigField("String", "PRIVACY_POLICY_URL", "\"https://manuelasan.github.io/SospechApp/privacy.html\"")
-            buildConfigField("String", "ADMOB_BANNER_AD_UNIT_ID", "\"ca-app-pub-3940256099942544/6300978111\"")
+            // AdMob real ad unit IDs (used ONLY in release builds)
+            buildConfigField("String", "ADMOB_BANNER_AD_UNIT_ID", "\"ca-app-pub-9672753025821735/2302845887\"") // Main menu banner
+            buildConfigField("String", "ADMOB_BANNER_READY_AD_UNIT_ID", "\"ca-app-pub-9672753025821735/6373952833\"") // ReadyToPlayScreen banner
+            // Do NOT use test AdMob IDs in release builds
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

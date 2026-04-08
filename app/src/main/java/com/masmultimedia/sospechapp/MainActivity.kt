@@ -26,6 +26,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.RequestConfiguration
 import com.google.android.ump.ConsentRequestParameters
 import com.google.android.ump.UserMessagingPlatform
 import com.masmultimedia.sospechapp.game.GameAction
@@ -92,6 +93,17 @@ class MainActivity : ComponentActivity() {
 
     private fun initializeMobileAdsSdk() {
         if (isMobileAdsInitialized.getAndSet(true)) return
+        // List of test device IDs for AdMob test ads
+        // Add here the IDs of your real devices and emulators as needed
+        val testDeviceIds = listOf(
+            "DAFB97D487DC64145FC55FC0DCD9EB67" // Samsung Galaxy A34
+            // "EMULATOR_DEVICE_ID" // Add your emulator ID here after you get it from logcat
+        )
+        MobileAds.setRequestConfiguration(
+            RequestConfiguration.Builder()
+                .setTestDeviceIds(testDeviceIds)
+                .build()
+        )
         MobileAds.initialize(this) {}
     }
 }
