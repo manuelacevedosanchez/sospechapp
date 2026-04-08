@@ -324,7 +324,7 @@ private fun StepperRow(
         ) {
             Icon(
                 imageVector = Icons.Rounded.Remove,
-                contentDescription = "Decrease"
+                contentDescription = stringResource(R.string.stepper_decrease)
             )
         }
         Spacer(modifier = Modifier.width(16.dp))
@@ -342,7 +342,7 @@ private fun StepperRow(
         ) {
             Icon(
                 imageVector = Icons.Rounded.Add,
-                contentDescription = "Increase"
+                contentDescription = stringResource(R.string.stepper_increase)
             )
         }
     }
