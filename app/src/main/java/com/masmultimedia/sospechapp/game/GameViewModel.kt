@@ -84,7 +84,7 @@ class GameViewModel(
             // Not using by now, only assets
             wordsRepository.syncIfNeeded()
 
-            val finalWord = wordInput?.takeIf { it.isNotBlank() } ?: wordsRepository.getRandomWord()
+            val finalWord = wordInput?.takeIf { it.isNotBlank() } ?: wordsRepository.getRandomWord(category, difficulty)
             val generatedRoles = generateRoles(totalPlayers, impostors)
 
             _uiState.update {

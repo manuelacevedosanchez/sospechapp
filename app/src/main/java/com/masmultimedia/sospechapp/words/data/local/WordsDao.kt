@@ -10,6 +10,9 @@ interface WordsDao {
     @Query("SELECT text FROM words ORDER BY RANDOM() LIMIT 1")
     suspend fun getRandomWord(): String?
 
+    @Query("SELECT text FROM words WHERE (:category IS NULL OR category = :category) AND (:difficulty IS NULL OR difficulty = :difficulty) ORDER BY RANDOM() LIMIT 1")
+    suspend fun getRandomWordFiltered(category: String?, difficulty: String?): String?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(words: List<WordEntity>)
 

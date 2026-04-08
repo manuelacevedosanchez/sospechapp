@@ -42,8 +42,8 @@ class DefaultWordsRepository(
         }
     }
 
-    override suspend fun getRandomWord(): String = withContext(Dispatchers.IO) {
+    override suspend fun getRandomWord(category: String?, difficulty: String?): String = withContext(Dispatchers.IO) {
         // If no words in BD, use fallbacks
-        dao.getRandomWord() ?: fallBacks.random()
+        dao.getRandomWordFiltered(category, difficulty) ?: fallBacks.random()
     }
 }

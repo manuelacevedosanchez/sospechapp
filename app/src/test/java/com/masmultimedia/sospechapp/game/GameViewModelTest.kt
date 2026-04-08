@@ -48,14 +48,14 @@ class GameViewModelTest {
 
     @Test
     fun `startGame with invalid players shows error`() = runTest {
-        viewModel.onAction(GameAction.StartGame(totalPlayers = 2, impostors = 1, wordInput = null))
+        viewModel.onAction(GameAction.StartGame(totalPlayers = 2, impostors = 1, wordInput = null, category = null, difficulty = null))
         val state = viewModel.uiState.value
         assertThat(state.errorMessage).isEqualTo("Invalid players")
     }
 
     @Test
     fun `startGame with valid players does not show error`() = runTest {
-        viewModel.onAction(GameAction.StartGame(totalPlayers = 5, impostors = 1, wordInput = ""))
+        viewModel.onAction(GameAction.StartGame(totalPlayers = 5, impostors = 1, wordInput = "", category = null, difficulty = null))
         testScheduler.runCurrent()
         val state = viewModel.uiState.value
         assertThat(state.errorMessage).isNull()

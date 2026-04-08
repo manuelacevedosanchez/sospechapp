@@ -193,7 +193,9 @@ fun GameConfigScreen(
                         label = { Text(stringResource(R.string.config_category)) },
                         placeholder = { Text(stringResource(R.string.config_category_hint)) },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedCategory) },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor(),
                         singleLine = true
                     )
                     ExposedDropdownMenu(
@@ -248,7 +250,9 @@ fun GameConfigScreen(
                         label = { Text(stringResource(R.string.config_difficulty)) },
                         placeholder = { Text(stringResource(R.string.config_difficulty_hint)) },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedDifficulty) },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor(),
                         singleLine = true
                     )
                     ExposedDropdownMenu(
