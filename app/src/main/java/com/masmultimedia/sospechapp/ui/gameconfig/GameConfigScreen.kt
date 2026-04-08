@@ -153,7 +153,7 @@ fun GameConfigScreen(
                 Column(modifier = Modifier.fillMaxWidth()) {
                     // Custom title above the text field
                     Text(
-                        text = "Word",
+                        text = stringResource(R.string.config_word),
                         style = MaterialTheme.typography.labelLarge,
                         modifier = Modifier.padding(bottom = 4.dp)
                     )
@@ -161,7 +161,7 @@ fun GameConfigScreen(
                         value = wordInput,
                         onValueChange = { wordInput = it },
                         label = null, // No label in the border
-                        placeholder = { Text("Empty = random") }, // Custom hint inside
+                        placeholder = { Text(stringResource(R.string.config_word_hint)) }, // Custom hint inside
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                     )
