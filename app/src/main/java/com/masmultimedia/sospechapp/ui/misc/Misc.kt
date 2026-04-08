@@ -76,15 +76,9 @@ fun MiscScreen(
 
             SospechCard(title = stringResource(R.string.misc_social)) {
                 LinkRow(
-                    text = stringResource(R.string.misc_github),
-                    onClick = { /* No action, repo pendiente de añadir */ },
-                )
-                LinkRow(
                     text = stringResource(R.string.misc_privacy),
                     onClick = {
-                        if (privacyPolicyUrl.isNotBlank()) {
-                            uriHandler.openUri(privacyPolicyUrl)
-                        }
+                        uriHandler.openUri("https://manuelacevedosanchez.github.io/sospechapp/privacy.html")
                     },
                 )
                 LinkRow(
