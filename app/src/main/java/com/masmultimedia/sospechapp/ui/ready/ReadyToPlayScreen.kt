@@ -15,7 +15,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.masmultimedia.sospechapp.BuildConfig
 import com.masmultimedia.sospechapp.R
+import com.masmultimedia.sospechapp.ui.components.BannerAd
 import com.masmultimedia.sospechapp.ui.components.SospechScaffold
 import com.masmultimedia.sospechapp.ui.components.SospechTopBar
 
@@ -23,6 +25,7 @@ import com.masmultimedia.sospechapp.ui.components.SospechTopBar
 @Composable
 fun ReadyToPlayScreen(
     onBackToMenu: () -> Unit,
+    showAds: Boolean,
     modifier: Modifier = Modifier
 ) {
     SospechScaffold(
@@ -53,6 +56,13 @@ fun ReadyToPlayScreen(
             )
 
             Spacer(modifier = Modifier.weight(1f))
+
+            if (showAds) {
+                BannerAd(
+                    adUnitId = BuildConfig.ADMOB_BANNER_AD_UNIT_ID,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
             Button(
                 onClick = onBackToMenu,

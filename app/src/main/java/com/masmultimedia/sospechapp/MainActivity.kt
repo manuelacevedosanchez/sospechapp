@@ -217,7 +217,8 @@ fun SospechNavHost(
                                 SospechAppDestination.MainMenu.route,
                                 inclusive = false
                             )
-                        }
+                        },
+                        showAds = showAds
                     )
                 }
 
