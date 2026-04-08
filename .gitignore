@@ -13,3 +13,11 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Ignorar archivos de configuración de dispositivos y preferencias locales de Android Studio
+/.idea/
+# Pero permite compartir configuraciones útiles si lo deseas (descomenta si quieres compartirlas)
+# !/.idea/codeStyles/
+# !/.idea/runConfigurations/
+# !/.idea/vcs.xml
+# !/.idea/inspectionProfiles/
