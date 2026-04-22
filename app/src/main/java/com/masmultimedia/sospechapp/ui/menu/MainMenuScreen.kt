@@ -2,7 +2,6 @@ package com.masmultimedia.sospechapp.ui.menu
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -56,21 +55,11 @@ fun MainMenuScreen(
             verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            SospechCard(title = stringResource(R.string.main_party_mode)) {
+            SospechCard(title = "Prepárate") {
                 Text(
                     text = stringResource(R.string.main_party_desc),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            SospechCard(title = stringResource(R.string.main_future_modes_title)) {
-                Text(
-                    text = stringResource(R.string.main_future_modes_desc),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                 )
             }
 
@@ -83,27 +72,23 @@ fun MainMenuScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                SecondaryButton(
-                    text = stringResource(R.string.main_how_to_play),
-                    leadingIcon = Icons.Filled.Info,
-                    onClick = onHowToPlayClick,
-                    modifier = Modifier
-                        .fillMaxWidth(0.48f)
-                        .widthIn(min = 120.dp)
-                )
-                SecondaryButton(
-                    text = stringResource(R.string.main_settings),
-                    leadingIcon = Icons.Filled.Settings,
-                    onClick = onSettingsClick,
-                    modifier = Modifier
-                        .fillMaxWidth(0.92f)
-                        .widthIn(min = 120.dp)
-                )
-            }
+            SecondaryButton(
+                text = stringResource(R.string.main_how_to_play),
+                leadingIcon = Icons.Filled.Info,
+                onClick = onHowToPlayClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .widthIn(min = 120.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            SecondaryButton(
+                text = stringResource(R.string.main_settings),
+                leadingIcon = Icons.Filled.Settings,
+                onClick = onSettingsClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .widthIn(min = 120.dp)
+            )
 
             SecondaryButton(
                 text = stringResource(R.string.main_misc),
