@@ -1,12 +1,12 @@
 package com.masmultimedia.sospechapp.ui
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
@@ -34,36 +34,29 @@ fun HowToPlayScreen(
             )
         }
     ) { innerPadding ->
-        Box(
+        Column(
             modifier = modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .padding(24.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                SospechCard(
-                    modifier = Modifier.weight(1.5f)
-                ) {
-                    Text(
-                        text = stringResource(R.string.how_to_play_steps),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp)
-                    )
-                }
-                Spacer(modifier = Modifier.weight(0.5f))
-                Button(
-                    onClick = onBackClick,
+            SospechCard {
+                Text(
+                    text = stringResource(R.string.how_to_play_steps),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 12.dp)
-                ) {
-                    Text(text = stringResource(R.string.how_to_play_back_to_menu))
-                }
+                        .padding(12.dp)
+                )
+            }
+            Button(
+                onClick = onBackClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp)
+            ) {
+                Text(text = stringResource(R.string.how_to_play_back_to_menu))
             }
         }
     }

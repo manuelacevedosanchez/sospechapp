@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Category and difficulty selectors for new game screen -->
     <string name="config_category">Categoría</string>
     <string name="config_category_hint">Todas las categorías</string>
@@ -56,7 +56,7 @@
     <string name="misc_acknowledgements">Agradecimientos</string>
     <string name="misc_acknowledgements_list">Thronak -&gt; Tester</string>
     <string name="loading_word">Cargando palabra…</string>
-    <string name="loading_title">Un momento</string>
+    <string name="loading_title" tools:ignore="Typos">Un momento</string>
     <string name="config_title">Nueva partida</string>
     <string name="config_subtitle">Configura la ronda</string>
     <string name="config_min_players">Mínimo 3</string>
@@ -66,7 +66,7 @@
     <string name="ready_back_to_menu">Volver al menú</string>
     <string name="how_to_play_title">Cómo se juega</string>
     <string name="how_to_play_subtitle">Reglas rápidas</string>
-    <string name="how_to_play_steps">1. Reúne a tus amigos y abrid SospechApp.\n\n2. Configurad la partida (jugadores e impostores) y, si queréis, escribid una palabra. Si la dejáis vacía, se usará una aleatoria.\n\n3. Pasad el móvil para que cada jugador vea su rol: ciudadanos verán la palabra, el impostor no.\n\n4. Hablando, cada jugador describe la palabra sin decirla directamente, mientras el impostor intenta pasar desapercibido.\n\n5. Al final, votad quién creéis que es el impostor. Podéis darle las vueltas que queráis a las reglas para adaptarlas a vuestro grupo.\n\n6. ¡Divertíos y jugad varias rondas!</string>
+    <string name="how_to_play_steps">1. Reúne a tu grupo y abre SospechApp.\n\n2. Configura la partida: elige el número de jugadores, impostores y rondas antes de votar. Si quieres, escribe una palabra; si la dejas vacía, se usará una aleatoria.\n\n3. Pasa el móvil para que cada jugador vea su rol. Los ciudadanos verán la palabra; el impostor, no.\n\n4. Por turnos, cada jugador describe la palabra sin decirla. El impostor debe improvisar para no ser descubierto.\n\n5. Al final, todos votan quién creen que es el impostor.\n\n¡Adapta las reglas a tu grupo y disfruta varias rondas!</string>
     <string name="how_to_play_back_to_menu">Volver al menú</string>
     <string name="settings_title">Ajustes</string>
     <string name="settings_subtitle">Personaliza la experiencia</string>
