@@ -4,19 +4,19 @@ import android.app.Application
 import com.google.common.truth.Truth.assertThat
 import com.masmultimedia.sospechapp.words.data.prefs.CategoryHistoryPrefs
 import com.masmultimedia.sospechapp.words.domain.WordsRepository
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.mockito.kotlin.any
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.whenever
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class GameViewModelTest {
@@ -30,22 +30,34 @@ class GameViewModelTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
-        stringProvider = mock()
-        whenever(stringProvider.getString(any())).thenReturn("Invalid players")
-        wordsRepository = mock()
-        categoryHistoryPrefs = mock()
-        runBlocking {
-            whenever(wordsRepository.syncIfNeeded()).thenReturn(Unit)
-            whenever(wordsRepository.getRandomWord()).thenReturn("TestWord")
-            whenever(wordsRepository.getRandomWord(any(), any())).thenReturn("TestWord")
-            whenever(categoryHistoryPrefs.getLastCategory()).thenReturn(null)
-            whenever(categoryHistoryPrefs.getRecentWords()).thenReturn(emptyList())
-            whenever(categoryHistoryPrefs.addRecentWord(any())).thenReturn(Unit)
-            whenever(categoryHistoryPrefs.setLastCategory(any())).thenReturn(Unit)
-        }
-        val application = mock<Application>()
-        viewModel =
-            GameViewModel(application, stringProvider, wordsRepository, categoryHistoryPrefs, testDispatcher)
+        stringProvider = mockk()
+        coEvery { stringProvider.getString(any()) } returns "Invalid players"
+        val assetsWordsRepository =
+            mockk<com.masmultimedia.sospechapp.words.data.AssetsWordsRepository>()
+        coEvery { assetsWordsRepository.getRandomWord() } returns "TestWord"
+        coEvery { assetsWordsRepository.getRandomWord(any(), any()) } returns "TestWord"
+        assetsWordsRepository.cachedWords = listOf(
+            com.masmultimedia.sospechapp.words.data.AssetsWordsRepository.WordAsset(
+                text = "TestWord",
+                category = "comida",
+                difficulty = "easy"
+            )
+        )
+        wordsRepository = assetsWordsRepository
+        categoryHistoryPrefs = mockk(relaxed = true)
+        coEvery { wordsRepository.syncIfNeeded() } returns Unit
+        coEvery { categoryHistoryPrefs.getLastCategory() } returns null
+        coEvery { categoryHistoryPrefs.getRecentWords() } returns emptyList()
+        coEvery { categoryHistoryPrefs.addRecentWord(any()) } returns Unit
+        coEvery { categoryHistoryPrefs.setLastCategory(any()) } returns Unit
+        val application = mockk<Application>()
+        viewModel = GameViewModel(
+            application,
+            stringProvider,
+            wordsRepository,
+            categoryHistoryPrefs,
+            testDispatcher
+        )
     }
 
     @After
@@ -80,7 +92,7 @@ class GameViewModelTest {
                 difficulty = null
             )
         )
-        testScheduler.runCurrent()
+        advanceUntilIdle() // Ensure all coroutines complete
         val state = viewModel.uiState.value
         println("Valor de currentWord: '${state.currentWord}'")
         assertThat(state.errorMessage).isNull()
@@ -93,6 +105,6 @@ class GameViewModelTest {
     fun `clearHistory calls prefs clearHistory`() = runTest {
         viewModel.clearHistory()
         testScheduler.runCurrent()
-        org.mockito.kotlin.verify(categoryHistoryPrefs).clearHistory()
+        coVerify { categoryHistoryPrefs.clearHistory() }
     }
 }

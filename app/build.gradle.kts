@@ -149,4 +149,5 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.truth)
     testImplementation(libs.mockito.kotlin)
+    testImplementation("io.mockk:mockk:1.13.10")
 }
