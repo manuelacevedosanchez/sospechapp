@@ -7,6 +7,8 @@ import com.masmultimedia.sospechapp.R
 import com.masmultimedia.sospechapp.words.data.AssetsWordsRepository
 import com.masmultimedia.sospechapp.words.data.prefs.CategoryHistoryPrefs
 import com.masmultimedia.sospechapp.words.domain.WordsRepository
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -15,8 +17,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 
 interface StringProvider {
     fun getString(resId: Int): String
@@ -34,14 +34,28 @@ class GameViewModel(
     private val categoryHistoryPrefs: CategoryHistoryPrefs = CategoryHistoryPrefs(application.applicationContext),
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main,
 ) : AndroidViewModel(application) {
-            /**
-             * Clears the persisted category and recent words history.
-             */
-            fun clearHistory() {
-                        viewModelScope.launch(dispatcher) {
-                            categoryHistoryPrefs.clearHistory()
-                        }
-            }
+    /**
+     * Advances to the next round or navigates to voting if it was the last round.
+     */
+    fun nextRound() {
+        val state = _uiState.value
+        if (state.currentRound < state.rounds) {
+            _uiState.update { it.copy(currentRound = it.currentRound + 1) }
+            viewModelScope.launch(dispatcher) { _effect.emit(GameEffect.NavigateToRound) }
+        } else {
+            // Last round, go to voting
+            viewModelScope.launch(dispatcher) { _effect.emit(GameEffect.NavigateToVote) }
+        }
+    }
+    /**
+     * Clears the persisted category and recent words history.
+     */
+    fun clearHistory() {
+        viewModelScope.launch(dispatcher) {
+            categoryHistoryPrefs.clearHistory()
+        }
+    }
+
     private val _uiState = MutableStateFlow(GameState())
     val uiState: StateFlow<GameState> = _uiState.asStateFlow()
 
@@ -53,6 +67,7 @@ class GameViewModel(
             is GameAction.StartGame -> startGame(
                 action.totalPlayers,
                 action.impostors,
+                action.rounds,
                 action.wordInput,
                 action.category,
                 action.difficulty
@@ -81,6 +96,7 @@ class GameViewModel(
     private fun startGame(
         totalPlayers: Int,
         impostors: Int,
+        rounds: Int,
         wordInput: String?,
         category: String?,
         difficulty: String?
@@ -100,6 +116,8 @@ class GameViewModel(
                 it.copy(
                     totalPlayers = totalPlayers,
                     impostors = impostors,
+                    rounds = rounds,
+                    currentRound = 1,
                     wordInput = wordInput.orEmpty(),
                     currentWord = finalWord,
                     roles = generatedRoles,

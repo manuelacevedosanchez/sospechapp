@@ -145,17 +145,11 @@ fun SospechNavHost(
     LaunchedEffect(Unit) {
         gameViewModel.effect.collect { effect ->
             when (effect) {
-                GameEffect.NavigateToRevealRoles -> {
-                    navController.navigate(SospechAppDestination.RevealRoles.route)
-                }
-
-                GameEffect.NavigateToReadyToPlay -> {
-                    navController.navigate(SospechAppDestination.ReadyToPlay.route)
-                }
-
-                is GameEffect.ShowError -> {
-                    snackbarHostState.showSnackbar(effect.message)
-                }
+                GameEffect.NavigateToRevealRoles -> navController.navigate(SospechAppDestination.RevealRoles.route)
+                GameEffect.NavigateToReadyToPlay -> navController.navigate(SospechAppDestination.ReadyToPlay.route)
+                GameEffect.NavigateToRound -> navController.navigate("rounds")
+                GameEffect.NavigateToVote -> navController.navigate("vote")
+                is GameEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
             }
         }
     }
@@ -168,6 +162,21 @@ fun SospechNavHost(
                 navController = navController,
                 startDestination = SospechAppDestination.Splash.route
             ) {
+                composable("vote") {
+                    val impostorIndices = state.roles.withIndex()
+                        .filter { it.value == com.masmultimedia.sospechapp.game.PlayerRole.IMPOSTOR }
+                        .map { it.index }
+                    com.masmultimedia.sospechapp.ui.vote.VoteScreen(
+                        impostorIndices = impostorIndices,
+                        onBackToMenu = {
+                            gameViewModel.onAction(GameAction.ResetGame)
+                            navController.popBackStack(
+                                SospechAppDestination.MainMenu.route,
+                                inclusive = false
+                            )
+                        }
+                    )
+                }
                 composable(SospechAppDestination.Splash.route) {
                     SplashScreen(
                         onTimeout = {
@@ -193,11 +202,12 @@ fun SospechNavHost(
                 composable(SospechAppDestination.GameConfig.route) {
                     GameConfigScreen(
                         onBackClick = { navController.popBackStack() },
-                        onStartGame = { totalPlayers, impostors, wordInput, category, difficulty ->
+                        onStartGame = { totalPlayers, impostors, rounds, wordInput, category, difficulty ->
                             gameViewModel.onAction(
                                 GameAction.StartGame(
                                     totalPlayers = totalPlayers,
                                     impostors = impostors,
+                                    rounds = rounds,
                                     wordInput = wordInput,
                                     category = category,
                                     difficulty = difficulty
@@ -230,7 +240,18 @@ fun SospechNavHost(
                                 inclusive = false
                             )
                         },
-                        showAds = showAds
+                        showAds = showAds,
+                        onStartRounds = { gameViewModel.nextRound() }
+                    )
+                }
+
+                composable("rounds") {
+                    val currentRound = state.currentRound
+                    val totalRounds = state.rounds
+                    com.masmultimedia.sospechapp.ui.rounds.RoundsScreen(
+                        currentRound = currentRound,
+                        totalRounds = totalRounds,
+                        onNext = { gameViewModel.nextRound() }
                     )
                 }
 

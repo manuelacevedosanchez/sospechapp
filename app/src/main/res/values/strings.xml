@@ -1,4 +1,10 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="rounds_title">Ronda %1$d de %2$d</string>
+    <string name="rounds_last_title">¡Última ronda! (%1$d de %2$d)</string>
+    <string name="rounds_message">Jugad normalmente. Cuando termine la ronda, pulsa siguiente.</string>
+    <string name="rounds_last_message">Jugad normalmente. Al terminar, toca votar quién es el impostor. Pulsa para finalizar y revelar el resultado.</string>
+    <string name="rounds_next_button">Siguiente ronda</string>
+    <string name="rounds_vote_button">Finalizar y votar</string>
     <!-- Category and difficulty selectors for new game screen -->
     <string name="config_category">Categoría</string>
     <string name="config_category_hint">Todas las categorías</string>
@@ -16,27 +22,11 @@
     <string name="app_name">SospechApp</string>
     <string name="splash_title">SospechApp</string>
     <string name="splash_subtitle">El impostor está entre vosotros</string>
-    <string name="main_party_mode">Modo fiesta</string>
-    <string name="main_party_desc">Pasa el móvil, memoriza tu rol… y que empiece el teatro.</string>
-    <string name="main_future_modes_title">Otros modos (próximamente)</string>
-    <string name="main_future_modes_desc">- Modo online
-- Modo rápido
-- Modo temático
-¿Tienes ideas? ¡Envíame feedback!</string>
     <string name="main_new_game">Nueva partida</string>
     <string name="main_how_to_play">Cómo se juega</string>
     <string name="main_settings">Ajustes</string>
     <string name="main_misc">Miscelánea</string>
-    <string name="config_new_game">Nueva partida</string>
-    <string name="config_setup_round">Configura la ronda</string>
-    <string name="config_players">Jugadores</string>
-    <string name="config_minimum_3">Mínimo 3</string>
-    <string name="config_impostors">Impostores</string>
-    <string name="config_between">Entre 1 y %1$d</string>
-    <string name="config_word">Palabra</string>
-    <string name="config_empty_random">Vacío = aleatoria</string>
-    <string name="config_start">Empezar</string>
-    <string name="config_back">Volver</string>
+    <string name="main_party_desc">Pasa el móvil, memoriza tu rol… y que empiece el teatro.</string>
     <string name="ready_title">Listo para jugar</string>
     <string name="ready_subtitle">Que empiece el teatro</string>
     <string name="ready_all_set">¡Todo listo!</string>
@@ -57,11 +47,6 @@
     <string name="misc_acknowledgements_list">Thronak -&gt; Tester</string>
     <string name="loading_word">Cargando palabra…</string>
     <string name="loading_title" tools:ignore="Typos">Un momento</string>
-    <string name="config_title">Nueva partida</string>
-    <string name="config_subtitle">Configura la ronda</string>
-    <string name="config_min_players">Mínimo 3</string>
-    <string name="config_impostors_range">Entre 1 y %1$d</string>
-    <string name="config_word_hint">Vacío = aleatoria</string>
     <string name="ready_instructions">Todos los jugadores conocen su rol.\nYa podéis empezar a jugar hablando.</string>
     <string name="ready_back_to_menu">Volver al menú</string>
     <string name="how_to_play_title">Cómo se juega</string>
@@ -105,4 +90,14 @@
     <string name="misc_contact">Contacto / Feedback</string>
     <string name="misc_contact_email_subject">Feedback SospechApp</string>
     <string name="misc_contact_email">manuacedevops@gmail.com</string>
+    <string name="config_title">Nueva partida</string>
+    <string name="config_subtitle">Configura la ronda</string>
+    <string name="config_players">Jugadores</string>
+    <string name="config_minimum_3">Mínimo 3</string>
+    <string name="config_impostors">Impostores</string>
+    <string name="config_impostors_range">Entre 1 y %1$d</string>
+    <string name="config_word">Palabra</string>
+    <string name="config_word_hint">Vacío = aleatoria</string>
+    <string name="config_start">Empezar</string>
+    <string name="config_back">Volver</string>
 </resources>

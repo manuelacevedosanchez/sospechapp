@@ -46,12 +46,13 @@ import com.masmultimedia.sospechapp.ui.components.SospechTopBar
 @Composable
 fun GameConfigScreen(
     onBackClick: () -> Unit,
-    onStartGame: (totalPlayers: Int, impostors: Int, word: String?, category: String?, difficulty: String?) -> Unit,
+    onStartGame: (totalPlayers: Int, impostors: Int, rounds: Int, word: String?, category: String?, difficulty: String?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var totalPlayers by remember { mutableIntStateOf(5) }
     var impostors by remember { mutableIntStateOf(1) }
     var wordInput by remember { mutableStateOf("") }
+    var rounds by remember { mutableIntStateOf(1) }
     var expandedCategory by remember { mutableStateOf(false) }
     var selectedCategory by remember { mutableStateOf<String?>(null) }
     val categoryOptions = listOf(
@@ -73,7 +74,8 @@ fun GameConfigScreen(
     )
     val safeTotalPlayers = totalPlayers.coerceAtLeast(3)
     val safeImpostors = impostors.coerceIn(1, safeTotalPlayers - 1)
-    val isStartEnabled = safeTotalPlayers >= 3 && safeImpostors in 1..<safeTotalPlayers
+    val safeRounds = rounds.coerceAtLeast(1)
+    val isStartEnabled = safeTotalPlayers >= 3 && safeImpostors in 1..<safeTotalPlayers && safeRounds >= 1
     SospechScaffold(
         topBar = {
             SospechTopBar(
@@ -94,55 +96,65 @@ fun GameConfigScreen(
                     .padding(24.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1.2f),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                SospechCard(
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    SospechCard(
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.config_players),
-                            style = MaterialTheme.typography.labelLarge,
-                            modifier = Modifier.padding(bottom = 4.dp)
-                        )
-                        StepperRow(
-                            value = totalPlayers,
-                            onMinus = { if (totalPlayers > 3) totalPlayers-- },
-                            onPlus = { totalPlayers++ }
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = stringResource(R.string.config_minimum_3),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                        )
-                    }
-                    SospechCard(
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.config_impostors),
-                            style = MaterialTheme.typography.labelLarge,
-                            modifier = Modifier.padding(bottom = 4.dp)
-                        )
-                        StepperRow(
-                            value = impostors,
-                            onMinus = { if (impostors > 1) impostors-- },
-                            onPlus = { if (impostors < totalPlayers - 1) impostors++ }
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = stringResource(
-                                R.string.config_impostors_range,
-                                totalPlayers - 1
-                            ),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                        )
-                    }
+                    Text(
+                        text = stringResource(R.string.config_players),
+                        style = MaterialTheme.typography.labelLarge,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    StepperRow(
+                        value = totalPlayers,
+                        onMinus = { if (totalPlayers > 3) totalPlayers-- },
+                        onPlus = { totalPlayers++ }
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = stringResource(R.string.config_minimum_3),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                    )
+                }
+                SospechCard(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = stringResource(R.string.config_impostors),
+                        style = MaterialTheme.typography.labelLarge,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    StepperRow(
+                        value = impostors,
+                        onMinus = { if (impostors > 1) impostors-- },
+                        onPlus = { if (impostors < totalPlayers - 1) impostors++ }
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = stringResource(R.string.config_impostors_range, totalPlayers - 1),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                    )
+                }
+                SospechCard(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "Rondas", // TODO: Añadir a strings.xml
+                        style = MaterialTheme.typography.labelLarge,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    StepperRow(
+                        value = rounds,
+                        onMinus = { if (rounds > 1) rounds-- },
+                        onPlus = { rounds++ }
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Mínimo 1 ronda", // TODO: Añadir a strings.xml
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                    )
                 }
                 SospechCard(
                     modifier = Modifier
@@ -158,95 +170,88 @@ fun GameConfigScreen(
                         singleLine = true
                     )
                 }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                SospechCard(
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    SospechCard(
-                        modifier = Modifier.weight(1f)
+                    Text(
+                        text = stringResource(R.string.config_category),
+                        style = MaterialTheme.typography.labelLarge,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    ExposedDropdownMenuBox(
+                        expanded = expandedCategory,
+                        onExpandedChange = { expandedCategory = !expandedCategory }
                     ) {
-                        Text(
-                            text = stringResource(R.string.config_category),
-                            style = MaterialTheme.typography.labelLarge,
-                            modifier = Modifier.padding(bottom = 4.dp)
+                        OutlinedTextField(
+                            value = selectedCategory
+                                ?: stringResource(R.string.config_category_hint),
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text(stringResource(R.string.config_category)) },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedCategory) },
+                            modifier = Modifier
+                                .fillMaxWidth()
                         )
-                        ExposedDropdownMenuBox(
+                        ExposedDropdownMenu(
                             expanded = expandedCategory,
-                            onExpandedChange = { expandedCategory = !expandedCategory }
+                            onDismissRequest = { expandedCategory = false }
                         ) {
-                            OutlinedTextField(
-                                value = selectedCategory
-                                    ?: stringResource(R.string.config_category_hint),
-                                onValueChange = {},
-                                readOnly = true,
-                                label = { Text(stringResource(R.string.config_category)) },
-                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedCategory) },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                            )
-                            ExposedDropdownMenu(
-                                expanded = expandedCategory,
-                                onDismissRequest = { expandedCategory = false }
-                            ) {
-                                categoryOptions.forEach { option ->
-                                    DropdownMenuItem(
-                                        text = {
-                                            Text(
-                                                option
-                                                    ?: stringResource(R.string.config_category_hint)
-                                            )
-                                        },
-                                        onClick = {
-                                            selectedCategory = option
-                                            expandedCategory = false
-                                        }
-                                    )
-                                }
+                            categoryOptions.forEach { option ->
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            option
+                                                ?: stringResource(R.string.config_category_hint)
+                                        )
+                                    },
+                                    onClick = {
+                                        selectedCategory = option
+                                        expandedCategory = false
+                                    }
+                                )
                             }
                         }
                     }
-                    SospechCard(
-                        modifier = Modifier.weight(1f)
+                }
+                SospechCard(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = stringResource(R.string.config_difficulty),
+                        style = MaterialTheme.typography.labelLarge,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    ExposedDropdownMenuBox(
+                        expanded = expandedDifficulty,
+                        onExpandedChange = { expandedDifficulty = !expandedDifficulty }
                     ) {
-                        Text(
-                            text = stringResource(R.string.config_difficulty),
-                            style = MaterialTheme.typography.labelLarge,
-                            modifier = Modifier.padding(bottom = 4.dp)
+                        OutlinedTextField(
+                            value = selectedDifficulty
+                                ?: stringResource(R.string.config_difficulty_hint),
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text(stringResource(R.string.config_difficulty)) },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedDifficulty) },
+                            modifier = Modifier
+                                .fillMaxWidth()
                         )
-                        ExposedDropdownMenuBox(
+                        ExposedDropdownMenu(
                             expanded = expandedDifficulty,
-                            onExpandedChange = { expandedDifficulty = !expandedDifficulty }
+                            onDismissRequest = { expandedDifficulty = false }
                         ) {
-                            OutlinedTextField(
-                                value = selectedDifficulty
-                                    ?: stringResource(R.string.config_difficulty_hint),
-                                onValueChange = {},
-                                readOnly = true,
-                                label = { Text(stringResource(R.string.config_difficulty)) },
-                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedDifficulty) },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                            )
-                            ExposedDropdownMenu(
-                                expanded = expandedDifficulty,
-                                onDismissRequest = { expandedDifficulty = false }
-                            ) {
-                                difficultyOptions.forEach { option ->
-                                    DropdownMenuItem(
-                                        text = {
-                                            Text(
-                                                option
-                                                    ?: stringResource(R.string.config_difficulty_hint)
-                                            )
-                                        },
-                                        onClick = {
-                                            selectedDifficulty = option
-                                            expandedDifficulty = false
-                                        }
-                                    )
-                                }
+                            difficultyOptions.forEach { option ->
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            option
+                                                ?: stringResource(R.string.config_difficulty_hint)
+                                        )
+                                    },
+                                    onClick = {
+                                        selectedDifficulty = option
+                                        expandedDifficulty = false
+                                    }
+                                )
                             }
                         }
                     }
@@ -259,6 +264,7 @@ fun GameConfigScreen(
                         onStartGame(
                             safeTotalPlayers,
                             safeImpostors,
+                            safeRounds,
                             cleanedWord,
                             selectedCategory,
                             selectedDifficulty

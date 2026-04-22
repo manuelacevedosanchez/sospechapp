@@ -26,7 +26,8 @@ import com.masmultimedia.sospechapp.ui.components.SospechTopBar
 fun ReadyToPlayScreen(
     onBackToMenu: () -> Unit,
     showAds: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onStartRounds: () -> Unit = {}
 ) {
     SospechScaffold(
         topBar = {
@@ -64,6 +65,12 @@ fun ReadyToPlayScreen(
                 )
             }
 
+            Button(
+                onClick = onStartRounds,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Empezar rondas")
+            }
             Button(
                 onClick = onBackToMenu,
                 modifier = Modifier.fillMaxWidth()
