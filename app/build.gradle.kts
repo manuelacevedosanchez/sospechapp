@@ -1,5 +1,5 @@
-import java.util.Properties
 import java.io.FileInputStream
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -43,10 +43,22 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField("String", "PRIVACY_POLICY_URL", "\"https://manuelasan.github.io/SospechApp/privacy.html\"")
+            buildConfigField(
+                "String",
+                "PRIVACY_POLICY_URL",
+                "\"https://manuelasan.github.io/SospechApp/privacy.html\""
+            )
             // AdMob test ad unit IDs (used ONLY in debug builds)
-            buildConfigField("String", "ADMOB_BANNER_AD_UNIT_ID", "\"ca-app-pub-3940256099942544/6300978111\"")
-            buildConfigField("String", "ADMOB_BANNER_READY_AD_UNIT_ID", "\"ca-app-pub-3940256099942544/6300978111\"")
+            buildConfigField(
+                "String",
+                "ADMOB_BANNER_AD_UNIT_ID",
+                "\"ca-app-pub-3940256099942544/6300978111\""
+            )
+            buildConfigField(
+                "String",
+                "ADMOB_BANNER_READY_AD_UNIT_ID",
+                "\"ca-app-pub-3940256099942544/6300978111\""
+            )
             // Do NOT use real AdMob IDs in debug builds
         }
 
@@ -54,10 +66,22 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             signingConfig = signingConfigs.getByName("release")
-            buildConfigField("String", "PRIVACY_POLICY_URL", "\"https://manuelasan.github.io/SospechApp/privacy.html\"")
+            buildConfigField(
+                "String",
+                "PRIVACY_POLICY_URL",
+                "\"https://manuelasan.github.io/SospechApp/privacy.html\""
+            )
             // AdMob real ad unit IDs (used ONLY in release builds)
-            buildConfigField("String", "ADMOB_BANNER_AD_UNIT_ID", "\"ca-app-pub-9672753025821735/2302845887\"") // Main menu banner
-            buildConfigField("String", "ADMOB_BANNER_READY_AD_UNIT_ID", "\"ca-app-pub-9672753025821735/6373952833\"") // ReadyToPlayScreen banner
+            buildConfigField(
+                "String",
+                "ADMOB_BANNER_AD_UNIT_ID",
+                "\"ca-app-pub-9672753025821735/2302845887\""
+            ) // Main menu banner
+            buildConfigField(
+                "String",
+                "ADMOB_BANNER_READY_AD_UNIT_ID",
+                "\"ca-app-pub-9672753025821735/6373952833\""
+            ) // ReadyToPlayScreen banner
             // Do NOT use test AdMob IDs in release builds
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -109,6 +133,7 @@ dependencies {
 
     implementation("com.google.code.gson:gson:2.10.1")
     testImplementation("com.google.code.gson:gson:2.10.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

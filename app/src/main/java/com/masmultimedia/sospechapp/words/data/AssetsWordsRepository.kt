@@ -10,7 +10,6 @@ import kotlinx.coroutines.withContext
 class AssetsWordsRepository(
     private val context: Context,
     private val assetFileName: String = "words_seed.json",
-    private val fallBackWords: List<String> = listOf("fallo", "error", "problema"),
 ) : WordsRepository {
 
     data class WordAsset(
@@ -24,24 +23,27 @@ class AssetsWordsRepository(
     )
 
     @Volatile
-    private var cachedWords: List<WordAsset>? = null
+    internal var cachedWords: List<WordAsset>? = null
+    internal val fallBackWords: List<String> = listOf("fallo", "error", "problema")
 
     override suspend fun syncIfNeeded() {
         // No sync needed for assets
     }
 
-    override suspend fun getRandomWord(category: String?, difficulty: String?): String = withContext(Dispatchers.IO) {
-        val words = cachedWords ?: loadWordsSafely().also { cachedWords = it }
-        val cat = category?.trim()?.lowercase()
-        val diff = difficulty?.trim()?.lowercase()
-        val filtered = words.filter {
-            (cat == null || it.category?.trim()?.lowercase() == cat) &&
-            (diff == null || it.difficulty?.trim()?.lowercase() == diff)
+    override suspend fun getRandomWord(category: String?, difficulty: String?): String =
+        withContext(Dispatchers.IO) {
+            val words = cachedWords ?: loadWordsSafely().also { cachedWords = it }
+            val cat = category?.trim()?.lowercase()
+            val diff = difficulty?.trim()?.lowercase()
+            val filtered = words.filter {
+                (cat == null || it.category?.trim()?.lowercase() == cat) &&
+                        (diff == null || it.difficulty?.trim()?.lowercase() == diff)
+            }
+            (filtered.ifEmpty { words }
+                .ifEmpty { fallBackWords.map { w -> WordAsset(w, null, null) } }).random().text
         }
-        (filtered.ifEmpty { words }.ifEmpty { fallBackWords.map { w -> WordAsset(w, null, null) } }).random().text
-    }
 
-    private fun loadWordsSafely(): List<WordAsset> {
+    internal fun loadWordsSafely(): List<WordAsset> {
         return runCatching {
             val json = context.assets.open(assetFileName)
                 .bufferedReader()
@@ -53,9 +55,9 @@ class AssetsWordsRepository(
                 val category = word.category?.trim().takeUnless { it.isNullOrBlank() }
                 val difficulty = word.difficulty?.trim().takeUnless { it.isNullOrBlank() }
                 if (text.isNotBlank()) WordAsset(text, category, difficulty) else null
-            }.also { println("[DEBUG] Palabras cargadas: ${it.size}") }
+            }.also { println("[DEBUG] Palabras cargadas: " + it.size) }
         }.getOrElse {
-            println("[DEBUG] Excepción al leer palabras: ${it}")
+            println("[DEBUG] Excepción al leer palabras: $it")
             emptyList()
         }
     }
