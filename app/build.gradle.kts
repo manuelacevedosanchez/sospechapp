@@ -1,8 +1,17 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 }
+
+val debugAdMobAppId = "ca-app-pub-3940256099942544~3347511713"
+val debugAdMobBannerId = "ca-app-pub-3940256099942544/6300978111"
+val releaseAdMobAppId = "ca-app-pub-9672753025821735~4960798815"
+val releaseMainMenuBannerId = "ca-app-pub-9672753025821735/2302845887"
+val releaseReadyToPlayBannerId = "ca-app-pub-9672753025821735/6373952833"
+val privacyPolicyUrl = "https://manuelacevedosanchez.github.io/sospechapp/privacy.html"
 
 android {
     namespace = "com.masmultimedia.sospechapp"
@@ -12,15 +21,69 @@ android {
         applicationId = "com.masmultimedia.sospechapp"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1.0"
+
+        buildConfigField("String", "PRIVACY_POLICY_URL", "\"$privacyPolicyUrl\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    // --- Keystore properties for release signing ---
+    val keystoreProperties = Properties().apply {
+        val keystoreFile = rootProject.file("keystore.properties")
+        if (keystoreFile.exists()) {
+            load(FileInputStream(keystoreFile))
+        }
+    }
+
+    signingConfigs {
+        create("release") {
+            if (keystoreProperties.isNotEmpty()) {
+                storeFile = file(keystoreProperties["storeFile"] as String)
+                storePassword = keystoreProperties["storePassword"] as String
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+            }
+        }
+    }
+
     buildTypes {
+        debug {
+            manifestPlaceholders["ADMOB_APP_ID"] = debugAdMobAppId
+            buildConfigField("String", "ADMOB_APP_ID", "\"$debugAdMobAppId\"")
+            // AdMob test ad unit IDs (used ONLY in debug builds)
+            buildConfigField(
+                "String",
+                "ADMOB_BANNER_AD_UNIT_ID",
+                "\"$debugAdMobBannerId\""
+            )
+            buildConfigField(
+                "String",
+                "ADMOB_BANNER_READY_AD_UNIT_ID",
+                "\"$debugAdMobBannerId\""
+            )
+            // Do NOT use real AdMob IDs in debug builds
+        }
+
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            signingConfig = signingConfigs.getByName("release")
+            manifestPlaceholders["ADMOB_APP_ID"] = releaseAdMobAppId
+            buildConfigField("String", "ADMOB_APP_ID", "\"$releaseAdMobAppId\"")
+            // AdMob real ad unit IDs (used ONLY in release builds)
+            buildConfigField(
+                "String",
+                "ADMOB_BANNER_AD_UNIT_ID",
+                "\"$releaseMainMenuBannerId\""
+            ) // Main menu banner
+            buildConfigField(
+                "String",
+                "ADMOB_BANNER_READY_AD_UNIT_ID",
+                "\"$releaseReadyToPlayBannerId\""
+            ) // ReadyToPlayScreen banner
+            // Do NOT use test AdMob IDs in release builds
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -31,11 +94,15 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
     buildFeatures {
+        buildConfig = true
         compose = true
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
     }
 }
 
@@ -49,6 +116,26 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.androidx.datastore.preferences)
+
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.kotlinx.serialization)
+    implementation(libs.okhttp.logging)
+    implementation(libs.play.services.ads)
+    implementation(libs.ump)
+
+    // navigation
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.compose.animation)
+    implementation(libs.androidx.room.common.jvm)
+    implementation(libs.androidx.compose.runtime)
+    implementation(libs.androidx.compose.foundation.layout)
+
+    implementation("com.google.code.gson:gson:2.10.1")
+    testImplementation("com.google.code.gson:gson:2.10.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -56,4 +143,12 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+    androidTestImplementation("androidx.test.uiautomator:uiautomator:2.3.0")
+
+    // Modern unit testing dependencies
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.truth)
+    testImplementation(libs.mockito.kotlin)
+    testImplementation("io.mockk:mockk:1.13.10")
 }
