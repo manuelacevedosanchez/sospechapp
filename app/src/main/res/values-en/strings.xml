@@ -63,6 +63,10 @@
     <string name="settings_animations_subtitle">Transitions when revealing/hiding role</string>
     <string name="settings_keep_screen_on_title">Keep screen on</string>
     <string name="settings_keep_screen_on_subtitle">Prevents the screen from turning off during the game</string>
+    <string name="settings_privacy_options_title">Privacy options</string>
+    <string name="settings_privacy_options_subtitle">Review or change your ad consent choices.</string>
+    <string name="settings_privacy_options_action">Open privacy options</string>
+    <string name="settings_privacy_options_error">Privacy options could not be opened. Please try again.</string>
     <string name="stepper_minus">-</string>
     <string name="stepper_plus">+</string>
     <string name="stepper_decrease">Decrease</string>

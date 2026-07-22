@@ -17,6 +17,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -29,6 +30,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
+import com.google.android.ump.ConsentInformation
 import com.google.android.ump.ConsentRequestParameters
 import com.google.android.ump.UserMessagingPlatform
 import com.masmultimedia.sospechapp.game.GameAction
@@ -56,7 +58,12 @@ class MainActivity : ComponentActivity() {
         GameViewModelFactory(application)
     }
     private var canRequestAds by mutableStateOf(false)
+    private var privacyOptionsRequired by mutableStateOf(false)
+    private var privacyOptionsErrorEvent by mutableIntStateOf(0)
     private val isMobileAdsInitialized = AtomicBoolean(false)
+    private val consentInformation by lazy {
+        UserMessagingPlatform.getConsentInformation(this)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,57 +71,82 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SospechAppTheme {
-                SospechApp(gameViewModel, showAds = canRequestAds)
+                SospechApp(
+                    gameViewModel = gameViewModel,
+                    showAds = canRequestAds,
+                    privacyOptionsRequired = privacyOptionsRequired,
+                    privacyOptionsErrorEvent = privacyOptionsErrorEvent,
+                    onPrivacyOptionsClick = ::showPrivacyOptions,
+                )
             }
         }
     }
 
     private fun requestConsentAndInitAds() {
-        val consentInformation = UserMessagingPlatform.getConsentInformation(this)
         val params = ConsentRequestParameters.Builder().build()
 
         consentInformation.requestConsentInfoUpdate(
             this,
             params,
             {
+                refreshPrivacyOptionsRequirement()
                 UserMessagingPlatform.loadAndShowConsentFormIfRequired(this) {
-                    canRequestAds = consentInformation.canRequestAds()
-                    if (canRequestAds) initializeMobileAdsSdk()
+                    refreshConsentState()
                 }
             },
             {
-                // If consent update fails, keep ads disabled to stay conservative.
-                canRequestAds = false
+                // Keep the app usable and rely only on consent state already held by UMP.
+                refreshConsentState()
             }
         )
 
-        if (consentInformation.canRequestAds()) {
-            canRequestAds = true
-            initializeMobileAdsSdk()
+        refreshConsentState()
+    }
+
+    private fun showPrivacyOptions() {
+        if (!privacyOptionsRequired) return
+
+        UserMessagingPlatform.showPrivacyOptionsForm(this) { formError ->
+            refreshConsentState()
+            if (formError != null) privacyOptionsErrorEvent++
         }
+    }
+
+    private fun refreshConsentState() {
+        refreshPrivacyOptionsRequirement()
+        canRequestAds = consentInformation.canRequestAds()
+        if (canRequestAds) initializeMobileAdsSdk()
+    }
+
+    private fun refreshPrivacyOptionsRequirement() {
+        privacyOptionsRequired = consentInformation.privacyOptionsRequirementStatus ==
+            ConsentInformation.PrivacyOptionsRequirementStatus.REQUIRED
     }
 
     private fun initializeMobileAdsSdk() {
         if (isMobileAdsInitialized.getAndSet(true)) return
-        // List of test device IDs for AdMob test ads
-        // Add here the IDs of your real devices and emulators as needed
-        val testDeviceIds = listOf(
-            "DAFB97D487DC64145FC55FC0DCD9EB67" // Samsung Galaxy A34
-            // "EMULATOR_DEVICE_ID" // Add your emulator ID here after you get it from logcat
-        )
-        MobileAds.setRequestConfiguration(
-            RequestConfiguration.Builder()
-                .setTestDeviceIds(testDeviceIds)
-                .build()
-        )
+        if (BuildConfig.DEBUG) {
+            MobileAds.setRequestConfiguration(
+                RequestConfiguration.Builder()
+                    .setTestDeviceIds(listOf(DEBUG_AD_TEST_DEVICE_ID))
+                    .build()
+            )
+        }
         MobileAds.initialize(this) {}
+    }
+
+    private companion object {
+        const val DEBUG_AD_TEST_DEVICE_ID = "DAFB97D487DC64145FC55FC0DCD9EB67"
     }
 }
 
 @Composable
 fun SospechApp(
     gameViewModel: GameViewModel,
-    showAds: Boolean
+    showAds: Boolean,
+    privacyOptionsRequired: Boolean,
+    privacyOptionsErrorEvent: Int,
+    onPrivacyOptionsClick: () -> Unit,
 ) {
     val navController = rememberNavController()
 
@@ -125,7 +157,10 @@ fun SospechApp(
         SospechNavHost(
             navController = navController,
             gameViewModel = gameViewModel,
-            showAds = showAds
+            showAds = showAds,
+            privacyOptionsRequired = privacyOptionsRequired,
+            privacyOptionsErrorEvent = privacyOptionsErrorEvent,
+            onPrivacyOptionsClick = onPrivacyOptionsClick,
         )
     }
 }
@@ -134,11 +169,15 @@ fun SospechApp(
 fun SospechNavHost(
     navController: NavHostController,
     gameViewModel: GameViewModel,
-    showAds: Boolean
+    showAds: Boolean,
+    privacyOptionsRequired: Boolean,
+    privacyOptionsErrorEvent: Int,
+    onPrivacyOptionsClick: () -> Unit,
 ) {
     val state by gameViewModel.uiState.collectAsState()
     val settings by gameViewModel.settings.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+    val privacyOptionsError = stringResource(R.string.settings_privacy_options_error)
     val view = LocalView.current
     DisposableEffect(settings.keepScreenOn) {
         view.keepScreenOn = settings.keepScreenOn
@@ -157,6 +196,11 @@ fun SospechNavHost(
             }
         }
     }
+    PrivacyOptionsErrorEffect(
+        eventId = privacyOptionsErrorEvent,
+        message = privacyOptionsError,
+        snackbarHostState = snackbarHostState,
+    )
 
     CompositionLocalProvider(
         LocalSospechSnackbarHostState provides snackbarHostState
@@ -281,8 +325,10 @@ fun SospechNavHost(
                 composable(SospechAppDestination.Settings.route) {
                     SettingsScreen(
                         settings = settings,
+                        showPrivacyOptions = privacyOptionsRequired,
                         onBackClick = { navController.popBackStack() },
-                        onAction = gameViewModel::onAction
+                        onAction = gameViewModel::onAction,
+                        onPrivacyOptionsClick = onPrivacyOptionsClick,
                     )
                 }
 
@@ -300,6 +346,17 @@ fun SospechNavHost(
                 )
             }
         }
+    }
+}
+
+@Composable
+internal fun PrivacyOptionsErrorEffect(
+    eventId: Int,
+    message: String,
+    snackbarHostState: SnackbarHostState,
+) {
+    LaunchedEffect(eventId) {
+        if (eventId > 0) snackbarHostState.showSnackbar(message)
     }
 }
 

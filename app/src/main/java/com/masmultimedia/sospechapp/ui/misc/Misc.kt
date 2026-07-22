@@ -78,7 +78,7 @@ fun MiscScreen(
                 LinkRow(
                     text = stringResource(R.string.misc_privacy),
                     onClick = {
-                        uriHandler.openUri("https://manuelacevedosanchez.github.io/sospechapp/privacy.html")
+                        uriHandler.openUri(privacyPolicyUrl)
                     },
                 )
                 LinkRow(

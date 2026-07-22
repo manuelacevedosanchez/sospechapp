@@ -7,7 +7,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -15,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.masmultimedia.sospechapp.R
 import com.masmultimedia.sospechapp.game.GameAction
@@ -27,8 +31,10 @@ import com.masmultimedia.sospechapp.ui.components.SospechTopBar
 @Composable
 fun SettingsScreen(
     settings: AppSettings,
+    showPrivacyOptions: Boolean,
     onBackClick: () -> Unit,
     onAction: (GameAction) -> Unit,
+    onPrivacyOptionsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     SospechScaffold(
@@ -44,7 +50,8 @@ fun SettingsScreen(
             modifier = modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(24.dp),
+                .padding(24.dp)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             SospechCard(title = stringResource(R.string.settings_experience_title)) {
@@ -73,9 +80,29 @@ fun SettingsScreen(
                     onCheckedChange = { onAction(GameAction.SetKeepScreenOn(it)) }
                 )
             }
+
+            if (showPrivacyOptions) {
+                SospechCard(title = stringResource(R.string.settings_privacy_options_title)) {
+                    Text(
+                        text = stringResource(R.string.settings_privacy_options_subtitle),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f),
+                    )
+                    Button(
+                        onClick = onPrivacyOptionsClick,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag(PRIVACY_OPTIONS_TAG),
+                    ) {
+                        Text(stringResource(R.string.settings_privacy_options_action))
+                    }
+                }
+            }
         }
     }
 }
+
+internal const val PRIVACY_OPTIONS_TAG = "privacy_options"
 
 @Composable
 private fun SettingRow(

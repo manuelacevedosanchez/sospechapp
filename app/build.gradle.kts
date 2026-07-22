@@ -6,6 +6,13 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
+val debugAdMobAppId = "ca-app-pub-3940256099942544~3347511713"
+val debugAdMobBannerId = "ca-app-pub-3940256099942544/6300978111"
+val releaseAdMobAppId = "ca-app-pub-9672753025821735~4960798815"
+val releaseMainMenuBannerId = "ca-app-pub-9672753025821735/2302845887"
+val releaseReadyToPlayBannerId = "ca-app-pub-9672753025821735/6373952833"
+val privacyPolicyUrl = "https://manuelacevedosanchez.github.io/sospechapp/privacy.html"
+
 android {
     namespace = "com.masmultimedia.sospechapp"
     compileSdk = 36
@@ -14,10 +21,10 @@ android {
         applicationId = "com.masmultimedia.sospechapp"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1.0"
 
-        manifestPlaceholders["ADMOB_APP_ID"] = "ca-app-pub-3940256099942544~3347511713"
+        buildConfigField("String", "PRIVACY_POLICY_URL", "\"$privacyPolicyUrl\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -43,21 +50,18 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField(
-                "String",
-                "PRIVACY_POLICY_URL",
-                "\"https://manuelasan.github.io/SospechApp/privacy.html\""
-            )
+            manifestPlaceholders["ADMOB_APP_ID"] = debugAdMobAppId
+            buildConfigField("String", "ADMOB_APP_ID", "\"$debugAdMobAppId\"")
             // AdMob test ad unit IDs (used ONLY in debug builds)
             buildConfigField(
                 "String",
                 "ADMOB_BANNER_AD_UNIT_ID",
-                "\"ca-app-pub-3940256099942544/6300978111\""
+                "\"$debugAdMobBannerId\""
             )
             buildConfigField(
                 "String",
                 "ADMOB_BANNER_READY_AD_UNIT_ID",
-                "\"ca-app-pub-3940256099942544/6300978111\""
+                "\"$debugAdMobBannerId\""
             )
             // Do NOT use real AdMob IDs in debug builds
         }
@@ -66,21 +70,18 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             signingConfig = signingConfigs.getByName("release")
-            buildConfigField(
-                "String",
-                "PRIVACY_POLICY_URL",
-                "\"https://manuelasan.github.io/SospechApp/privacy.html\""
-            )
+            manifestPlaceholders["ADMOB_APP_ID"] = releaseAdMobAppId
+            buildConfigField("String", "ADMOB_APP_ID", "\"$releaseAdMobAppId\"")
             // AdMob real ad unit IDs (used ONLY in release builds)
             buildConfigField(
                 "String",
                 "ADMOB_BANNER_AD_UNIT_ID",
-                "\"ca-app-pub-9672753025821735/2302845887\""
+                "\"$releaseMainMenuBannerId\""
             ) // Main menu banner
             buildConfigField(
                 "String",
                 "ADMOB_BANNER_READY_AD_UNIT_ID",
-                "\"ca-app-pub-9672753025821735/6373952833\""
+                "\"$releaseReadyToPlayBannerId\""
             ) // ReadyToPlayScreen banner
             // Do NOT use test AdMob IDs in release builds
             proguardFiles(
