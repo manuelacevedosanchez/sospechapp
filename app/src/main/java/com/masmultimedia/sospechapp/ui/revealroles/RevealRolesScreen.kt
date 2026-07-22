@@ -20,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.masmultimedia.sospechapp.R
 import com.masmultimedia.sospechapp.game.GameState
+import com.masmultimedia.sospechapp.game.AppSettings
 import com.masmultimedia.sospechapp.game.PlayerRole
 import com.masmultimedia.sospechapp.ui.components.PrimaryButton
 import com.masmultimedia.sospechapp.ui.components.SospechCard
@@ -30,6 +31,7 @@ import com.masmultimedia.sospechapp.ui.components.SospechTopBar
 @Composable
 fun RevealRolesScreen(
     state: GameState,
+    settings: AppSettings,
     onRevealRole: () -> Unit,
     onHideAndNext: () -> Unit,
     modifier: Modifier = Modifier
@@ -68,6 +70,7 @@ fun RevealRolesScreen(
                 isRoleVisible = state.isRoleVisible,
                 playerIndex = state.currentPlayerIndex,
                 state = state,
+                settings = settings,
                 onRevealRole = onRevealRole,
                 onHideAndNext = onHideAndNext
             )
@@ -80,6 +83,7 @@ private fun ColumnScope.RevealRolesContent(
     isRoleVisible: Boolean,
     playerIndex: Int,
     state: GameState,
+    settings: AppSettings,
     onRevealRole: () -> Unit,
     onHideAndNext: () -> Unit
 ) {
@@ -109,7 +113,7 @@ private fun ColumnScope.RevealRolesContent(
         PrimaryButton(
             text = stringResource(R.string.reveal_roles_show_role),
             onClick = {
-                if (state.settings.hapticsEnabled) {
+                if (settings.hapticsEnabled) {
                     haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 }
                 onRevealRole()
@@ -127,7 +131,7 @@ private fun ColumnScope.RevealRolesContent(
         PrimaryButton(
             text = stringResource(R.string.reveal_roles_hide_and_next),
             onClick = {
-                if (state.settings.hapticsEnabled) {
+                if (settings.hapticsEnabled) {
                     haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 }
                 onHideAndNext()

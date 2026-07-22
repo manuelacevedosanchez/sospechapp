@@ -3,6 +3,7 @@ package com.masmultimedia.sospechapp
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.compose.BackHandler
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
@@ -21,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -31,6 +33,7 @@ import com.google.android.ump.ConsentRequestParameters
 import com.google.android.ump.UserMessagingPlatform
 import com.masmultimedia.sospechapp.game.GameAction
 import com.masmultimedia.sospechapp.game.GameEffect
+import com.masmultimedia.sospechapp.game.GamePhase
 import com.masmultimedia.sospechapp.game.GameViewModel
 import com.masmultimedia.sospechapp.game.GameViewModelFactory
 import com.masmultimedia.sospechapp.navigation.SospechAppDestination
@@ -134,10 +137,11 @@ fun SospechNavHost(
     showAds: Boolean
 ) {
     val state by gameViewModel.uiState.collectAsState()
+    val settings by gameViewModel.settings.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val view = LocalView.current
-    DisposableEffect(state.settings.keepScreenOn) {
-        view.keepScreenOn = state.settings.keepScreenOn
+    DisposableEffect(settings.keepScreenOn) {
+        view.keepScreenOn = settings.keepScreenOn
         onDispose { view.keepScreenOn = false }
     }
 
@@ -145,10 +149,10 @@ fun SospechNavHost(
     LaunchedEffect(Unit) {
         gameViewModel.effect.collect { effect ->
             when (effect) {
-                GameEffect.NavigateToRevealRoles -> navController.navigate(SospechAppDestination.RevealRoles.route)
-                GameEffect.NavigateToReadyToPlay -> navController.navigate(SospechAppDestination.ReadyToPlay.route)
-                GameEffect.NavigateToRound -> navController.navigate("rounds")
-                GameEffect.NavigateToVote -> navController.navigate("vote")
+                GameEffect.NavigateToRevealRoles -> navController.navigatePhase(SospechAppDestination.RevealRoles)
+                GameEffect.NavigateToReadyToPlay -> navController.navigatePhase(SospechAppDestination.ReadyToPlay)
+                GameEffect.NavigateToRound -> navController.navigatePhase(SospechAppDestination.Rounds)
+                GameEffect.NavigateToVote -> navController.navigatePhase(SospechAppDestination.Vote)
                 is GameEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
             }
         }
@@ -162,19 +166,19 @@ fun SospechNavHost(
                 navController = navController,
                 startDestination = SospechAppDestination.Splash.route
             ) {
-                composable("vote") {
+                composable(SospechAppDestination.Vote.route) {
+                    val backToMenu = {
+                        gameViewModel.onAction(GameAction.ResetGame)
+                        navController.popBackStack(SospechAppDestination.MainMenu.route, inclusive = false)
+                        Unit
+                    }
+                    BackHandler(onBack = backToMenu)
                     val impostorIndices = state.roles.withIndex()
                         .filter { it.value == com.masmultimedia.sospechapp.game.PlayerRole.IMPOSTOR }
                         .map { it.index }
                     com.masmultimedia.sospechapp.ui.vote.VoteScreen(
                         impostorIndices = impostorIndices,
-                        onBackToMenu = {
-                            gameViewModel.onAction(GameAction.ResetGame)
-                            navController.popBackStack(
-                                SospechAppDestination.MainMenu.route,
-                                inclusive = false
-                            )
-                        }
+                        onBackToMenu = backToMenu,
                     )
                 }
                 composable(SospechAppDestination.Splash.route) {
@@ -200,14 +204,23 @@ fun SospechNavHost(
                 }
 
                 composable(SospechAppDestination.GameConfig.route) {
+                    val cancelAndGoBack = {
+                        gameViewModel.onAction(GameAction.CancelStartGame)
+                        navController.popBackStack()
+                        Unit
+                    }
+                    BackHandler(onBack = cancelAndGoBack)
                     GameConfigScreen(
-                        onBackClick = { navController.popBackStack() },
+                        state = state,
+                        onBackClick = cancelAndGoBack,
+                        onAction = gameViewModel::onAction,
                         onStartGame = { totalPlayers, impostors, rounds, wordInput, category, difficulty ->
                             gameViewModel.onAction(
                                 GameAction.StartGame(
                                     totalPlayers = totalPlayers,
                                     impostors = impostors,
                                     rounds = rounds,
+                                    useCustomWord = state.useCustomWord,
                                     wordInput = wordInput,
                                     category = category,
                                     difficulty = difficulty
@@ -224,40 +237,50 @@ fun SospechNavHost(
                 }
 
                 composable(SospechAppDestination.RevealRoles.route) {
+                    BackHandler {
+                        gameViewModel.onAction(GameAction.ResetGame)
+                        navController.popBackStack(SospechAppDestination.MainMenu.route, inclusive = false)
+                    }
                     RevealRolesScreen(
                         state = state,
+                        settings = settings,
                         onRevealRole = { gameViewModel.onAction(GameAction.RevealRole) },
                         onHideAndNext = { gameViewModel.onAction(GameAction.HideRoleAndNext) }
                     )
                 }
 
                 composable(SospechAppDestination.ReadyToPlay.route) {
+                    val backToMenu = {
+                        gameViewModel.onAction(GameAction.ResetGame)
+                        navController.popBackStack(SospechAppDestination.MainMenu.route, inclusive = false)
+                        Unit
+                    }
+                    BackHandler(onBack = backToMenu)
                     ReadyToPlayScreen(
-                        onBackToMenu = {
-                            gameViewModel.onAction(GameAction.ResetGame)
-                            navController.popBackStack(
-                                SospechAppDestination.MainMenu.route,
-                                inclusive = false
-                            )
-                        },
+                        onBackToMenu = backToMenu,
                         showAds = showAds,
-                        onStartRounds = { gameViewModel.nextRound() }
+                        onStartRounds = { gameViewModel.onAction(GameAction.StartRounds) }
                     )
                 }
 
-                composable("rounds") {
+                composable(SospechAppDestination.Rounds.route) {
+                    BackHandler {
+                        gameViewModel.onAction(GameAction.ResetGame)
+                        navController.popBackStack(SospechAppDestination.MainMenu.route, inclusive = false)
+                    }
                     val currentRound = state.currentRound
                     val totalRounds = state.rounds
                     com.masmultimedia.sospechapp.ui.rounds.RoundsScreen(
                         currentRound = currentRound,
                         totalRounds = totalRounds,
-                        onNext = { gameViewModel.nextRound() }
+                        enabled = state.phase == GamePhase.PLAYING_ROUNDS,
+                        onNext = { gameViewModel.onAction(GameAction.FinishRound) }
                     )
                 }
 
                 composable(SospechAppDestination.Settings.route) {
                     SettingsScreen(
-                        state = state,
+                        settings = settings,
                         onBackClick = { navController.popBackStack() },
                         onAction = gameViewModel::onAction
                     )
@@ -273,9 +296,16 @@ fun SospechNavHost(
 
             if (state.isLoading) {
                 LoadingOverlay(
-                    text = "Cargando palabra..."
+                    text = stringResource(R.string.loading_word)
                 )
             }
         }
+    }
+}
+
+private fun NavHostController.navigatePhase(destination: SospechAppDestination) {
+    navigate(destination.route) {
+        popUpTo(SospechAppDestination.MainMenu.route) { inclusive = false }
+        launchSingleTop = true
     }
 }

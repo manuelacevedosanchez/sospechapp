@@ -76,6 +76,10 @@
 #    @com.google.gson.annotations.SerializedName <fields>;
 #}
 
+# Gson reads only these two asset DTOs through reflection. Keep the scope deliberately narrow.
+-keep class com.masmultimedia.sospechapp.words.data.WordsAssetRoot { *; }
+-keep class com.masmultimedia.sospechapp.words.data.WordAssetDto { *; }
+
 # 10. Ajustes para Compose Navigation (si usas SafeArgs/NavGraph)
 -keep class androidx.navigation.** { *; }
 

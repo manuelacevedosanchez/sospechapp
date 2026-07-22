@@ -1,14 +1,21 @@
 package com.masmultimedia.sospechapp.game
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.masmultimedia.sospechapp.R
 import com.masmultimedia.sospechapp.words.data.AssetsWordsRepository
 import com.masmultimedia.sospechapp.words.data.prefs.CategoryHistoryPrefs
 import com.masmultimedia.sospechapp.words.domain.WordsRepository
+import com.masmultimedia.sospechapp.words.domain.WordsResult
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -17,6 +24,9 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.Locale
+import kotlin.math.ceil
+import kotlin.random.Random
 
 interface StringProvider {
     fun getString(resId: Int): String
@@ -26,216 +36,215 @@ class AndroidStringProvider(private val context: android.content.Context) : Stri
     override fun getString(resId: Int): String = context.getString(resId)
 }
 
-
 class GameViewModel(
     application: Application,
     private val stringProvider: StringProvider = AndroidStringProvider(application.applicationContext),
-    private val wordsRepository: WordsRepository = AssetsWordsRepository(context = application.applicationContext),
+    private val wordsRepository: WordsRepository = AssetsWordsRepository(application.applicationContext),
     private val categoryHistoryPrefs: CategoryHistoryPrefs = CategoryHistoryPrefs(application.applicationContext),
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main,
+    private val random: Random = Random.Default,
 ) : AndroidViewModel(application) {
-    /**
-     * Advances to the next round or navigates to voting if it was the last round.
-     */
-    fun nextRound() {
-        val state = _uiState.value
-        if (state.currentRound < state.rounds) {
-            _uiState.update { it.copy(currentRound = it.currentRound + 1) }
-            viewModelScope.launch(dispatcher) { _effect.emit(GameEffect.NavigateToRound) }
-        } else {
-            // Last round, go to voting
-            viewModelScope.launch(dispatcher) { _effect.emit(GameEffect.NavigateToVote) }
-        }
-    }
-    /**
-     * Clears the persisted category and recent words history.
-     */
-    fun clearHistory() {
-        viewModelScope.launch(dispatcher) {
-            categoryHistoryPrefs.clearHistory()
-        }
-    }
-
     private val _uiState = MutableStateFlow(GameState())
     val uiState: StateFlow<GameState> = _uiState.asStateFlow()
+
+    private val _settings = MutableStateFlow(AppSettings())
+    val settings: StateFlow<AppSettings> = _settings.asStateFlow()
 
     private val _effect = MutableSharedFlow<GameEffect>()
     val effect: SharedFlow<GameEffect> = _effect.asSharedFlow()
 
+    private var startGameJob: Job? = null
+    private var roundTransitionJob: Job? = null
+
     fun onAction(action: GameAction) {
         when (action) {
-            is GameAction.StartGame -> startGame(
-                action.totalPlayers,
-                action.impostors,
-                action.rounds,
-                action.wordInput,
-                action.category,
-                action.difficulty
-            )
-
-            is GameAction.SetHapticsEnabled -> {
-                _uiState.update { it.copy(settings = it.settings.copy(hapticsEnabled = action.enabled)) }
+            is GameAction.StartGame -> startGame(action)
+            is GameAction.SetCustomWordMode -> updateConfiguration {
+                it.copy(useCustomWord = action.enabled, customWordError = false, errorMessage = null)
             }
-
-            is GameAction.SetAnimationsEnabled -> {
-                _uiState.update { it.copy(settings = it.settings.copy(animationsEnabled = action.enabled)) }
+            is GameAction.SetCustomWord -> updateConfiguration {
+                it.copy(wordInput = action.word, customWordError = false, errorMessage = null)
             }
-
-            is GameAction.SetKeepScreenOn -> {
-                _uiState.update { it.copy(settings = it.settings.copy(keepScreenOn = action.enabled)) }
-            }
-
-
+            is GameAction.SetHapticsEnabled -> _settings.update { it.copy(hapticsEnabled = action.enabled) }
+            is GameAction.SetAnimationsEnabled -> _settings.update { it.copy(animationsEnabled = action.enabled) }
+            is GameAction.SetKeepScreenOn -> _settings.update { it.copy(keepScreenOn = action.enabled) }
             GameAction.RevealRole -> revealRole()
             GameAction.HideRoleAndNext -> hideRoleAndNext()
+            GameAction.StartRounds -> startRounds()
+            GameAction.FinishRound -> finishRound()
+            GameAction.CancelStartGame -> cancelStartGame()
             GameAction.ResetGame -> resetGame()
         }
     }
 
-    // Update startGame to accept category and difficulty
-    private fun startGame(
-        totalPlayers: Int,
-        impostors: Int,
-        rounds: Int,
-        wordInput: String?,
-        category: String?,
-        difficulty: String?
-    ) {
-        if (totalPlayers < 3 || impostors < 1 || impostors >= totalPlayers) {
+    fun clearHistory() {
+        viewModelScope.launch(dispatcher) { categoryHistoryPrefs.clearHistory() }
+    }
+
+    private fun updateConfiguration(transform: (GameState) -> GameState) {
+        _uiState.update { state ->
+            if (state.phase == GamePhase.CONFIGURATION) transform(state) else state
+        }
+    }
+
+    private fun startGame(action: GameAction.StartGame) {
+        if (_uiState.value.phase != GamePhase.CONFIGURATION) return
+        if (action.totalPlayers < 3 || action.impostors !in 1 until action.totalPlayers || action.rounds < 1) {
             sendError(stringProvider.getString(R.string.error_invalid_players))
             return
         }
-        viewModelScope.launch(dispatcher) {
-            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-            wordsRepository.syncIfNeeded()
-            val chosenCategory = pickCategory(category)
-            val finalWord =
-                wordInput?.takeIf { it.isNotBlank() } ?: pickWord(chosenCategory, difficulty)
-            val generatedRoles = generateRoles(totalPlayers, impostors)
-            _uiState.update {
-                it.copy(
-                    totalPlayers = totalPlayers,
-                    impostors = impostors,
-                    rounds = rounds,
-                    currentRound = 1,
-                    wordInput = wordInput.orEmpty(),
-                    currentWord = finalWord,
-                    roles = generatedRoles,
-                    currentPlayerIndex = 0,
-                    isRoleVisible = false,
-                    isGameStarted = true,
-                    isReadyToPlay = false,
-                    isLoading = false,
-                    errorMessage = null
-                )
-            }
-            // Persist category and word
-            chosenCategory?.let { categoryHistoryPrefs.setLastCategory(it) }
-            categoryHistoryPrefs.addRecentWord(finalWord)
-            _effect.emit(GameEffect.NavigateToRevealRoles)
+        val customWord = action.wordInput?.trim().orEmpty()
+        if (action.useCustomWord && customWord.isBlank()) {
+            _uiState.update { it.copy(customWordError = true) }
+            sendError(stringProvider.getString(R.string.error_custom_word_required))
+            return
         }
+
+        startGameJob?.cancel()
+        _uiState.update { it.copy(phase = GamePhase.LOADING, errorMessage = null, customWordError = false) }
+        val job = viewModelScope.launch(dispatcher) {
+            try {
+                val selection = if (action.useCustomWord) {
+                    SelectedWord(customWord, usedFallback = false)
+                } else {
+                    wordsRepository.syncIfNeeded()
+                    selectCatalogWord(action.category, action.difficulty)
+                }
+                currentCoroutineContext().ensureActive()
+                val generatedRoles = generateRoles(action.totalPlayers, action.impostors)
+                _uiState.update {
+                    it.copy(
+                        phase = GamePhase.REVEALING_ROLES,
+                        totalPlayers = action.totalPlayers,
+                        impostors = action.impostors,
+                        rounds = action.rounds,
+                        currentRound = 1,
+                        wordInput = if (action.useCustomWord) customWord else "",
+                        currentWord = selection.text,
+                        roles = generatedRoles,
+                        currentPlayerIndex = 0,
+                        isRoleVisible = false,
+                        errorMessage = null,
+                        useCustomWord = action.useCustomWord,
+                        isUsingFallback = selection.usedFallback,
+                    )
+                }
+                currentCoroutineContext().ensureActive()
+                _effect.emit(GameEffect.NavigateToRevealRoles)
+            } catch (cancellation: CancellationException) {
+                throw cancellation
+            } catch (error: Exception) {
+                Log.e(TAG, "Unable to start game", error)
+                _uiState.update { it.copy(phase = GamePhase.CONFIGURATION) }
+                sendError(stringProvider.getString(R.string.error_word_catalog_unavailable))
+            }
+        }
+        startGameJob = job
+        job.invokeOnCompletion { if (startGameJob === job) startGameJob = null }
     }
 
-    private fun generateRoles(totalPlayers: Int, impostors: Int): List<PlayerRole> {
-        val roles = mutableListOf<PlayerRole>()
-        repeat(impostors) {
-            roles.add(PlayerRole.IMPOSTOR)
+    private suspend fun selectCatalogWord(category: String?, difficulty: String?): SelectedWord {
+        val result = wordsRepository.getWords(category, difficulty)
+        val source = when (result) {
+            is WordsResult.Success -> "catalog"
+            is WordsResult.Fallback -> "fallback"
+            WordsResult.Empty -> throw IllegalStateException("No words for category=$category difficulty=$difficulty")
+            is WordsResult.Error -> throw result.cause
         }
-        repeat(totalPlayers - impostors) {
-            roles.add(PlayerRole.CITIZEN)
+        var candidates = result.words
+        val normalizedCategory = category?.trim()?.lowercase(Locale.ROOT)
+        val chosenCategory = normalizedCategory ?: candidates.map { it.category }.distinct().random(random)
+        candidates = candidates.filter { it.category == chosenCategory }
+        if (candidates.isEmpty()) throw IllegalStateException("Selected category has no words: $chosenCategory")
+
+        val historyKey = historyKey(source, chosenCategory, difficulty)
+        val candidateIds = candidates.mapTo(mutableSetOf()) { it.id }
+        var usedIds = categoryHistoryPrefs.getUsedWordIds(historyKey).intersect(candidateIds)
+        val resetThreshold = ceil(candidates.size * HISTORY_RESET_RATIO).toInt().coerceAtLeast(1)
+        if (usedIds.size >= resetThreshold) {
+            categoryHistoryPrefs.clearWordHistory(historyKey)
+            usedIds = emptySet()
         }
-        roles.shuffle()
-        return roles
+        val word = candidates.filterNot { it.id in usedIds }.ifEmpty { candidates }.random(random)
+        categoryHistoryPrefs.addUsedWordId(historyKey, word.id)
+        categoryHistoryPrefs.setLastCategory(chosenCategory)
+        return SelectedWord(word.text, usedFallback = result is WordsResult.Fallback)
     }
+
+    private fun generateRoles(totalPlayers: Int, impostors: Int): List<PlayerRole> =
+        (MutableList(impostors) { PlayerRole.IMPOSTOR } +
+            MutableList(totalPlayers - impostors) { PlayerRole.CITIZEN }).shuffled(random)
 
     private fun revealRole() {
         _uiState.update { state ->
-            if (!state.isGameStarted) {
-                state
-            } else {
-                state.copy(isRoleVisible = true)
-            }
+            if (state.phase == GamePhase.REVEALING_ROLES) state.copy(isRoleVisible = true) else state
         }
     }
 
     private fun hideRoleAndNext() {
-        val currentState = _uiState.value
-        if (!currentState.isGameStarted) return
-
-        val isLastPlayer = currentState.currentPlayerIndex >= currentState.totalPlayers - 1
-
-        if (!isLastPlayer) {
-            // Move to next player and hide role
-            _uiState.update { state ->
-                state.copy(
-                    currentPlayerIndex = state.currentPlayerIndex + 1,
-                    isRoleVisible = false
-                )
-            }
+        val state = _uiState.value
+        if (state.phase != GamePhase.REVEALING_ROLES || !state.isRoleVisible) return
+        if (state.currentPlayerIndex < state.totalPlayers - 1) {
+            _uiState.update { it.copy(currentPlayerIndex = it.currentPlayerIndex + 1, isRoleVisible = false) }
         } else {
-            // All players have seen their roles, ready to play
-            _uiState.update { state ->
-                state.copy(
-                    isReadyToPlay = true,
-                    isRoleVisible = false
-                )
-            }
-
-            viewModelScope.launch(dispatcher) {
-                _effect.emit(GameEffect.NavigateToReadyToPlay)
-            }
+            _uiState.update { it.copy(phase = GamePhase.READY, isRoleVisible = false) }
+            viewModelScope.launch(dispatcher) { _effect.emit(GameEffect.NavigateToReadyToPlay) }
         }
     }
 
-    private fun resetGame() {
-        _uiState.update {
-            GameState()
+    private fun startRounds() {
+        if (_uiState.value.phase != GamePhase.READY) return
+        _uiState.update { it.copy(phase = GamePhase.PLAYING_ROUNDS) }
+        viewModelScope.launch(dispatcher) { _effect.emit(GameEffect.NavigateToRound) }
+    }
+
+    private fun finishRound() {
+        val state = _uiState.value
+        if (state.phase != GamePhase.PLAYING_ROUNDS) return
+        if (state.currentRound < state.rounds) {
+            _uiState.update {
+                it.copy(phase = GamePhase.ADVANCING_ROUND, currentRound = it.currentRound + 1)
+            }
+            roundTransitionJob?.cancel()
+            val job = viewModelScope.launch(dispatcher) {
+                delay(ROUND_TRANSITION_DELAY_MS)
+                _uiState.update {
+                    if (it.phase == GamePhase.ADVANCING_ROUND) it.copy(phase = GamePhase.PLAYING_ROUNDS) else it
+                }
+            }
+            roundTransitionJob = job
+            job.invokeOnCompletion { if (roundTransitionJob === job) roundTransitionJob = null }
+        } else {
+            _uiState.update { it.copy(phase = GamePhase.VOTING) }
+            viewModelScope.launch(dispatcher) { _effect.emit(GameEffect.NavigateToVote) }
         }
+    }
+
+    private fun cancelStartGame() {
+        startGameJob?.cancel()
+        startGameJob = null
+        roundTransitionJob?.cancel()
+        roundTransitionJob = null
+        _uiState.value = GameState()
+    }
+
+    private fun resetGame() {
+        cancelStartGame()
     }
 
     private fun sendError(message: String) {
         _uiState.update { it.copy(errorMessage = message) }
-
-        viewModelScope.launch(dispatcher) {
-            _effect.emit(GameEffect.ShowError(message))
-        }
+        viewModelScope.launch(dispatcher) { _effect.emit(GameEffect.ShowError(message)) }
     }
 
-    private suspend fun pickCategory(requested: String?): String? {
-        val categories = getAllCategories()
-        val lastCategory = categoryHistoryPrefs.getLastCategory()
-        val filtered = categories.filter { it != lastCategory }
-        return requested ?: filtered.randomOrNull() ?: categories.randomOrNull()
-    }
+    private fun historyKey(source: String, category: String, difficulty: String?): String =
+        "$source|${category.trim().lowercase(Locale.ROOT)}|${difficulty?.trim()?.lowercase(Locale.ROOT) ?: "all"}"
 
-    private suspend fun pickWord(category: String?, difficulty: String?): String {
-        val recent = categoryHistoryPrefs.getRecentWords()
-        val words = getWordsFiltered(category, difficulty)
-        val filtered = words.filter { it !in recent }
-        return (filtered.ifEmpty { words }).random()
-    }
+    private data class SelectedWord(val text: String, val usedFallback: Boolean)
 
-    private suspend fun getWordsFiltered(category: String?, difficulty: String?): List<String> {
-        // Use repository to get all possible words for the filter
-        return (wordsRepository as? AssetsWordsRepository)?.let { repo ->
-            val all = repo.run {
-                val words = cachedWords ?: loadWordsSafely().also { cachedWords = it }
-                words.filter {
-                    (category == null || it.category?.trim()
-                        .equals(category.trim(), ignoreCase = true)) &&
-                            (difficulty == null || it.difficulty?.trim()
-                                .equals(difficulty.trim(), ignoreCase = true))
-                }.map { it.text }
-            }
-            all.ifEmpty { listOf(repo.fallBackWords.random()) }
-        } ?: listOf(wordsRepository.getRandomWord(category, difficulty))
+    private companion object {
+        const val TAG = "GameViewModel"
+        const val HISTORY_RESET_RATIO = 0.75
+        const val ROUND_TRANSITION_DELAY_MS = 300L
     }
-
-    private fun getAllCategories(): List<String> {
-        return (wordsRepository as? AssetsWordsRepository)?.let { repo ->
-            val words = repo.run { cachedWords ?: loadWordsSafely() }
-            words.mapNotNull { it.category }.distinct()
-        } ?: listOf("comida", "objetos", "personajes", "animales", "lugares")
-    }
-
 }

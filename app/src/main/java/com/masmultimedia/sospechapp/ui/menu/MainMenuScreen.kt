@@ -55,7 +55,7 @@ fun MainMenuScreen(
             verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            SospechCard(title = "Prepárate") {
+            SospechCard(title = stringResource(R.string.main_get_ready)) {
                 Text(
                     text = stringResource(R.string.main_party_desc),
                     style = MaterialTheme.typography.bodyLarge,

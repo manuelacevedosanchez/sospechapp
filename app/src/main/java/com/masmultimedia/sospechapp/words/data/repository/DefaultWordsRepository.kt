@@ -5,14 +5,19 @@ import com.masmultimedia.sospechapp.words.data.local.WordsDao
 import com.masmultimedia.sospechapp.words.data.prefs.WordsPrefs
 import com.masmultimedia.sospechapp.words.data.remote.WordsApi
 import com.masmultimedia.sospechapp.words.domain.WordsRepository
+import com.masmultimedia.sospechapp.words.domain.Word
+import com.masmultimedia.sospechapp.words.domain.WordsResult
+import com.masmultimedia.sospechapp.words.domain.CatalogFallbackReason
+import com.masmultimedia.sospechapp.words.data.fallbackWords
+import com.masmultimedia.sospechapp.words.data.filtered
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.withContext
 
 class DefaultWordsRepository(
     private val dao: WordsDao,
     private val prefs: WordsPrefs,
     private val api: WordsApi?,
-    private val fallBacks: List<String> = listOf("fallo", "error", "problema"),
 ) : WordsRepository {
 
     override suspend fun syncIfNeeded() {
@@ -21,7 +26,7 @@ class DefaultWordsRepository(
             // If there are no api (V1), nothing to sync
             val safeApy = api ?: return@withContext
 
-            runCatching {
+            try {
                 val localVersion = prefs.getLocalVersion()
                 val remote = safeApy.getWords()
 
@@ -37,13 +42,29 @@ class DefaultWordsRepository(
                     })
                     prefs.setLocalVersion(remote.version)
                 }
+            } catch (cancellation: CancellationException) {
+                throw cancellation
+            } catch (_: Exception) {
+                // If synchronization fails, keep the existing local data.
             }
-            // If fails, keep existing data
         }
     }
 
-    override suspend fun getRandomWord(category: String?, difficulty: String?): String = withContext(Dispatchers.IO) {
-        // If no words in BD, use fallbacks
-        dao.getRandomWordFiltered(category, difficulty) ?: fallBacks.random()
+    override suspend fun getWords(category: String?, difficulty: String?): WordsResult = withContext(Dispatchers.IO) {
+        val words = dao.getWordsFiltered(category, difficulty).map { entity ->
+            Word(
+                id = "db:${entity.id}",
+                text = entity.text,
+                category = entity.category.orEmpty(),
+                difficulty = entity.difficulty.orEmpty(),
+            )
+        }
+        if (words.isEmpty()) {
+            val fallback = fallbackWords.filtered(category, difficulty)
+            if (fallback.isEmpty()) WordsResult.Empty
+            else WordsResult.Fallback(fallback, CatalogFallbackReason.EMPTY_CATALOG)
+        } else {
+            WordsResult.Success(words)
+        }
     }
 }

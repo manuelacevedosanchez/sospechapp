@@ -13,6 +13,13 @@
 .externalNativeBuild
 .cxx
 local.properties
+keystore.properties
+*.jks
+*.keystore
+*.apk
+*.aab
+/app/release/
+testlog*.txt
 
 # Ignorar archivos de configuración de dispositivos y preferencias locales de Android Studio
 /.idea/

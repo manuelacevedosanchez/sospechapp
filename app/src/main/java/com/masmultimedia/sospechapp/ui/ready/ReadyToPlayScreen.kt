@@ -69,7 +69,7 @@ fun ReadyToPlayScreen(
                 onClick = onStartRounds,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = "Empezar rondas")
+                Text(text = stringResource(R.string.ready_start_rounds))
             }
             Button(
                 onClick = onBackToMenu,

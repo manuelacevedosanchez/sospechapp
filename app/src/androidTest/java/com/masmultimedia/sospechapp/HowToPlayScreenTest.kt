@@ -13,9 +13,6 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Until
 import androidx.compose.ui.test.junit4.createComposeRule
 import com.masmultimedia.sospechapp.ui.HowToPlayScreen
-import androidx.compose.ui.res.stringResource
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 import com.masmultimedia.sospechapp.R
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.CompositionLocalProvider
@@ -104,7 +101,6 @@ class HowToPlayScreenIsolatedTest {
     @Test
     fun howToPlayScreen_displaysAllTexts() {
         composeTestRule.setContent {
-            val context = LocalContext.current
             val snackbarHostState = SnackbarHostState()
             CompositionLocalProvider(LocalSospechSnackbarHostState provides snackbarHostState) {
                 HowToPlayScreen(onBackClick = {})
@@ -114,17 +110,7 @@ class HowToPlayScreenIsolatedTest {
         // Check for title and subtitle from resources
         composeTestRule.onNodeWithText(context.getString(R.string.how_to_play_title)).assertExists()
         composeTestRule.onNodeWithText(context.getString(R.string.how_to_play_subtitle)).assertExists()
-        // Check for substrings of each step (robust to line breaks)
-        val stepSubstrings = listOf(
-            "Reúne a tus amigos",
-            "Configurad la partida",
-            "Pasad el móvil",
-            "cada jugador describe la palabra",
-            "votad quién creéis que es el impostor",
-            "¡Divertíos y jugad varias rondas!"
-        )
-        for (substring in stepSubstrings) {
-            composeTestRule.onNodeWithText(substring, substring = true).assertExists()
-        }
+        // The active locale selects either values or values-en; assert the same resource rendered by the UI.
+        composeTestRule.onNodeWithText(context.getString(R.string.how_to_play_steps)).assertExists()
     }
 }

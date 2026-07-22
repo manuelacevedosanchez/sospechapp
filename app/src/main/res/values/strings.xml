@@ -5,6 +5,20 @@
     <string name="rounds_last_message">Jugad normalmente. Al terminar, toca votar quién es el impostor. Pulsa para finalizar y revelar el resultado.</string>
     <string name="rounds_next_button">Siguiente ronda</string>
     <string name="rounds_vote_button">Finalizar y votar</string>
+    <string name="vote_instructions">¡Es hora de votar! Hablad y decidid quién creéis que es el impostor.</string>
+    <plurals name="vote_reveal_button">
+        <item quantity="one">Revelar al impostor</item>
+        <item quantity="other">Revelar a los impostores</item>
+    </plurals>
+    <plurals name="vote_result_title">
+        <item quantity="one">El impostor era:</item>
+        <item quantity="other">Los impostores eran:</item>
+    </plurals>
+    <string name="vote_player_number">Jugador %1$d</string>
+    <string name="vote_list_separator">", "</string>
+    <string name="vote_list_final_separator">" y "</string>
+    <string name="vote_no_impostors">No hay impostores asignados</string>
+    <string name="vote_back_to_menu">Volver al menú</string>
     <!-- Category and difficulty selectors for new game screen -->
     <string name="config_category">Categoría</string>
     <string name="config_category_hint">Todas las categorías</string>
@@ -23,6 +37,7 @@
     <string name="splash_title">SospechApp</string>
     <string name="splash_subtitle">El impostor está entre vosotros</string>
     <string name="main_new_game">Nueva partida</string>
+    <string name="main_get_ready">Prepárate</string>
     <string name="main_how_to_play">Cómo se juega</string>
     <string name="main_settings">Ajustes</string>
     <string name="main_misc">Miscelánea</string>
@@ -98,6 +113,14 @@
     <string name="config_impostors_range">Entre 1 y %1$d</string>
     <string name="config_word">Palabra</string>
     <string name="config_word_hint">Vacío = aleatoria</string>
+    <string name="config_custom_word_toggle">Usar palabra personalizada</string>
+    <string name="config_custom_word_explanation">Ideal si una persona actúa como moderadora y elige la palabra sin participar en la ronda.</string>
+    <string name="config_custom_word_placeholder">Escribe la palabra secreta</string>
+    <string name="error_custom_word_required">Escribe una palabra personalizada para empezar</string>
+    <string name="error_word_catalog_unavailable">No hay palabras disponibles para esta configuración</string>
+    <string name="config_rounds">Rondas</string>
+    <string name="config_rounds_minimum">Mínimo 1 ronda</string>
+    <string name="ready_start_rounds">Empezar rondas</string>
     <string name="config_start">Empezar</string>
     <string name="config_back">Volver</string>
 </resources>

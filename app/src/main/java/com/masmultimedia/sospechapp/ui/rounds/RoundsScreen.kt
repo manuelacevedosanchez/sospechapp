@@ -19,6 +19,7 @@ import com.masmultimedia.sospechapp.R
 fun RoundsScreen(
     currentRound: Int,
     totalRounds: Int,
+    enabled: Boolean,
     onNext: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -48,6 +49,7 @@ fun RoundsScreen(
         )
         Button(
             onClick = onNext,
+            enabled = enabled,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
@@ -60,4 +62,3 @@ fun RoundsScreen(
         }
     }
 }
-

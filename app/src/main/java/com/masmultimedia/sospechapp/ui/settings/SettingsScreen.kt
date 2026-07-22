@@ -18,7 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.masmultimedia.sospechapp.R
 import com.masmultimedia.sospechapp.game.GameAction
-import com.masmultimedia.sospechapp.game.GameState
+import com.masmultimedia.sospechapp.game.AppSettings
 import com.masmultimedia.sospechapp.ui.components.SospechCard
 import com.masmultimedia.sospechapp.ui.components.SospechScaffold
 import com.masmultimedia.sospechapp.ui.components.SospechTopBar
@@ -26,7 +26,7 @@ import com.masmultimedia.sospechapp.ui.components.SospechTopBar
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    state: GameState,
+    settings: AppSettings,
     onBackClick: () -> Unit,
     onAction: (GameAction) -> Unit,
     modifier: Modifier = Modifier
@@ -51,7 +51,7 @@ fun SettingsScreen(
                 SettingRow(
                     title = stringResource(R.string.settings_haptics_title),
                     subtitle = stringResource(R.string.settings_haptics_subtitle),
-                    checked = state.settings.hapticsEnabled,
+                    checked = settings.hapticsEnabled,
                     onCheckedChange = { onAction(GameAction.SetHapticsEnabled(it)) }
                 )
 
@@ -60,7 +60,7 @@ fun SettingsScreen(
                 SettingRow(
                     title = stringResource(R.string.settings_animations_title),
                     subtitle = stringResource(R.string.settings_animations_subtitle),
-                    checked = state.settings.animationsEnabled,
+                    checked = settings.animationsEnabled,
                     onCheckedChange = { onAction(GameAction.SetAnimationsEnabled(it)) }
                 )
 
@@ -69,7 +69,7 @@ fun SettingsScreen(
                 SettingRow(
                     title = stringResource(R.string.settings_keep_screen_on_title),
                     subtitle = stringResource(R.string.settings_keep_screen_on_subtitle),
-                    checked = state.settings.keepScreenOn,
+                    checked = settings.keepScreenOn,
                     onCheckedChange = { onAction(GameAction.SetKeepScreenOn(it)) }
                 )
             }
